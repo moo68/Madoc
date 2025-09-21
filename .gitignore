@@ -1,0 +1,19 @@
+# Build artifacts
+cmake-build-*/
+build/
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+*.dylib
+
+# IDE junk
+.idea/
+*.iml
+
+# OS junk
+.DS_Store
+Thumbs.db
