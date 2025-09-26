@@ -110,9 +110,15 @@ int main() {
     glEnableVertexAttribArray(0);
 
 
-    VoronoiGrid grid = createVoronoiGrid(60, 20, 20, 10);
-    generateVoronoiCells(grid, 8576452);
+    const int width = 60;
+    const int height = 20;
+    const int macroWidth = 20;
+    const int macroHeight = 10;
+    const int seed = 98425279;
+    VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
+    generateVoronoiCells(grid, seed);
     printGrid(grid);
+
 
     // THE RENDER LOOP
     while(!glfwWindowShouldClose(window))
