@@ -110,11 +110,11 @@ int main() {
     glEnableVertexAttribArray(0);
 
 
-    const int width = 60;
-    const int height = 20;
+    const int width = 80;
+    const int height = 30;
     const int macroWidth = 20;
     const int macroHeight = 10;
-    const int seed = 98425279;
+    const int seed = 98525279;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed);
     printGrid(grid);
