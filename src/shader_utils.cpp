@@ -6,7 +6,6 @@
 #include <madoc/log_utils.h>
 
 
-// Take a file path as input, and output a string of the text in that file
 std::string readShaderFile(const std::string& filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -26,7 +25,6 @@ std::string readShaderFile(const std::string& filePath) {
     return outputString;
 }
 
-// Generate a shader based on the source code and shader type
 GLuint createShader(const char* shaderSource, const ShaderType shaderType) {
     GLuint shader = 0;
     switch (shaderType) {
@@ -61,7 +59,6 @@ GLuint createShader(const char* shaderSource, const ShaderType shaderType) {
     return shader;
 }
 
-// Generate a shaderProgram based on the given lists of individual shaders
 GLuint createShaderProgram(GLuint shaderList[]) {
     const GLuint shaderProgram = glCreateProgram();
     for (int i = 0; i < sizeof(shaderList) / sizeof(shaderList[0]); i++) {

@@ -12,7 +12,9 @@ set(SOURCES ${CMAKE_SOURCE_DIR}/external/glad/src/glad.c
         src/shader_utils.cpp
         include/madoc/shader_utils.h
         include/madoc/log_utils.h
-        src/log_utils.cpp)
+        src/log_utils.cpp
+        src/voronoi.cpp
+        include/madoc/voronoi.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

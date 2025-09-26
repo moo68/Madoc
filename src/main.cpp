@@ -5,6 +5,7 @@
 
 #include <madoc/shader_utils.h>
 #include <madoc/log_utils.h>
+#include <madoc/voronoi.h>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -51,6 +52,7 @@ int main() {
     glViewport(0, 0, screenWidth, screenHeight);
 
 
+    // SHADERS
     // Load shader files
     std::string vertex;
     std::string fragment;
@@ -107,6 +109,10 @@ int main() {
         static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
 
+
+    VoronoiGrid grid = createVoronoiGrid(60, 20, 20, 10);
+    generateVoronoiCells(grid, 8576452);
+    printGrid(grid);
 
     // THE RENDER LOOP
     while(!glfwWindowShouldClose(window))
