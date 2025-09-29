@@ -40,7 +40,6 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
     const int numMacroX = inputGrid.width / inputGrid.macroWidth;
     const int numMacroY = inputGrid.height / inputGrid.macroHeight;
     u_int16_t voronoiID = 1;
-    //u_int16_t macroCellID = 0;
     for (int macroY = 0; macroY < numMacroY; macroY++) {
         for (int macroX = 0; macroX < numMacroX; macroX++) {
             std::vector<FeaturePoint> featurePoints;
@@ -56,9 +55,48 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
             }
             inputGrid.macroCells.push_back({macroX, macroY, featurePoints});
             featurePoints.clear();
-            //std::pair<int, int> macroCoords = {macroX, macroY};
-            //inputGrid.featurePointMap.insert(macroCoords, featurePointList);
-            //macroCellID++;
+        }
+    }
+
+    // Iterate through each grid cell, getting what macro cell it's in
+    for (int y = 0; y < inputGrid.height; y++) {
+        for (int x = 0; x < inputGrid.width; x++) {
+            int currentMacroX = x / inputGrid.macroWidth;
+            int currentMacroY = y / inputGrid.macroHeight;
+            std::vector<FeaturePoint> featurePointsToCheck;
+            featurePointsToCheck.reserve(9);
+
+            int shortestDistance = std::numeric_limits<int>::max();
+            u_int16_t cellID;
+
+            // Get all valid adjacent macro cells and the feature points in those macro cells
+            for (int checkedMacroY = currentMacroY - 1; checkedMacroY <= currentMacroY + 1; checkedMacroY++) {
+                for (int checkedMacroX = currentMacroX - 1; checkedMacroX <= currentMacroX + 1; checkedMacroX++) {
+                    if (checkedMacroX >= 0 && checkedMacroX < numMacroX &&
+                        checkedMacroY >= 0 && checkedMacroY < numMacroY) {
+                        MacroCell& currentMacroCell =
+                            inputGrid.macroCells[(checkedMacroY * numMacroX) + checkedMacroX];
+                        std::vector<FeaturePoint>& currentFeaturePoints =
+                            currentMacroCell.featurePoints;
+
+                        // For each feature point in this macro cell, calculate the distance
+                        // and check whether its the shortest
+                        for (int i = 0; i < currentFeaturePoints.size(); i++) {
+                            int dx = currentFeaturePoints[i].x - x;
+                            int dy = currentFeaturePoints[i].y - y;
+                            int distance = (dx * dx) + (dy * dy);
+
+                            if (distance < shortestDistance) {
+                                cellID = currentFeaturePoints[i].voronoiID;
+                                shortestDistance = distance;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Set the cell's final voronoiID
+            inputGrid.cells[(y * inputGrid.width) + x] = cellID;
         }
     }
 
@@ -82,24 +120,6 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
             if (endingY > inputGrid.height - 1) { endingY = inputGrid.height - 1; }
 
 
-        }
-    }*/
-
-    /*int totalNumMacroCells = numMacroX * numMacroY;
-    std::array<int, 9> macroCellsToCheck{};
-    for (int i = 0; i < totalNumMacroCells; i++) {
-        macroCellsToCheck = {
-            (i - 1) - numMacroX, i - numMacroX, (i + 1) - numMacroX,
-            i - 1,               i,             i + 1,
-            (i - 1) + numMacroX, i + numMacroX, (i + 1) + numMacroX
-        };
-
-        // If the macro cell is in bounds, get its feature points
-        for (int j = 0; j < macroCellsToCheck.size(); j++) {
-            int currentMacroRow = (i / numMacroX) * numMacroX;
-            if (!(macroCellsToCheck[j] < 0 || macroCellsToCheck[j] > currentMacroRow * numMacroX)) {
-
-            }
         }
     }*/
 }

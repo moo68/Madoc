@@ -24,7 +24,7 @@ struct FeaturePoint {
 };
 
 struct MacroCell {
-    int x, y;
+    int x, y; // TODO: rename to macroX/macroY?
     std::vector<FeaturePoint> featurePoints;
 };
 
@@ -36,9 +36,6 @@ struct MacroCell {
  * The fields macroWidth and macroHeight refer to the width and height of each
  * 'macro cell' in the grid. Macro cells are just larger areas on the grid made
  * up of individual cells.
- *
- * The featurePointList is a list where each index contains the macroCellID of
- * that feature point and the coordinates of that feature point.
  */
 struct VoronoiGrid {
     int width, height;
