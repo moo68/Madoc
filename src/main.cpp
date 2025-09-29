@@ -114,9 +114,11 @@ int main() {
     const int height = 30;
     const int macroWidth = 20;
     const int macroHeight = 10;
-    const int seed = 7302543;
+    const int seed = 20754938;
+    const int minPoints = 1;
+    const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
-    generateVoronoiCells(grid, seed);
+    generateVoronoiCells(grid, seed, minPoints, maxPoints);
     printGrid(grid);
 
 

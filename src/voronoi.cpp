@@ -21,11 +21,13 @@ VoronoiGrid createVoronoiGrid(const int width, const int height,
     return outputGrid;
 }
 
-void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
+void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed,
+    const int minFeaturePoints, const int maxFeaturePoints) {
     // Random integer generation
     std::mt19937 generator(seed);
     std::uniform_int_distribution<int> randomX(0, inputGrid.macroWidth - 1);
     std::uniform_int_distribution<int> randomY(0, inputGrid.macroHeight - 1);
+    std::uniform_int_distribution<int> randomFeaturePoints(minFeaturePoints, maxFeaturePoints);
 
     // TODO: make sure feature points can't spawn on already existing feature points?
 
@@ -37,8 +39,8 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
     for (int macroY = 0; macroY < numMacroY; macroY++) {
         for (int macroX = 0; macroX < numMacroX; macroX++) {
             std::vector<FeaturePoint> featurePoints;
-            featurePoints.reserve(3);
-            for (int i = 0; i < 3; i++) {
+            featurePoints.reserve(maxFeaturePoints);
+            for (int i = 0; i < randomFeaturePoints(generator); i++) {
                 int featurePointX = randomX(generator) + (macroX * inputGrid.macroWidth);
                 int featurePointY = randomY(generator) + (macroY * inputGrid.macroHeight);
 

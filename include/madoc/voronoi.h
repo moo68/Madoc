@@ -39,9 +39,13 @@ struct VoronoiGrid {
 // Instantiates a "blank" VoronoiGrid by assigning its width and height
 VoronoiGrid createVoronoiGrid(int width, int height, int macroWidth, int macroHeight);
 
-// Takes a reference to an already existing VoronoiGrid to actually create
-// voronoi cells pseudorandomly using a given seed
-void generateVoronoiCells(VoronoiGrid& inputGrid, int seed);
+/*
+ * Takes a reference to an already existing VoronoiGrid to actually create
+ * voronoi cells pseudorandomly using a given seed. minFeaturePoints and
+ * maxFeaturePoints refer to the min and max per macro cell, not whole grid
+ */
+void generateVoronoiCells(VoronoiGrid& inputGrid, int seed, int minFeaturePoints,
+    int maxFeaturePoints);
 
 // Prints out the given grid into the terminal
 void printGrid(const VoronoiGrid& inputGrid);
