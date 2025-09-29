@@ -28,18 +28,12 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
     std::uniform_int_distribution<int> randomY(0, inputGrid.macroHeight - 1);
 
     // TODO: make sure feature points can't spawn on already existing feature points?
-    // Assign all cells in the grid to a default ID of 0 (we should eventually be able
-    // to get rid of this)
-    for (int y = 0; y < inputGrid.height; y++) {
-        for (int x = 0; x < inputGrid.width; x++) {
-            inputGrid.cells[(y * inputGrid.width) + x] = 0;
-        }
-    }
 
-    // Randomly assign some grid cells as feature points
     const int numMacroX = inputGrid.width / inputGrid.macroWidth;
     const int numMacroY = inputGrid.height / inputGrid.macroHeight;
-    u_int16_t voronoiID = 1;
+    u_int16_t voronoiID = 0;
+
+    // Randomly assign some grid cells as feature points
     for (int macroY = 0; macroY < numMacroY; macroY++) {
         for (int macroX = 0; macroX < numMacroX; macroX++) {
             std::vector<FeaturePoint> featurePoints;
@@ -53,7 +47,7 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
                 featurePoints.push_back({featurePointX, featurePointY, voronoiID});
                 voronoiID++;
             }
-            inputGrid.macroCells.push_back({macroX, macroY, featurePoints});
+            inputGrid.macroCells.push_back({featurePoints});
             featurePoints.clear();
         }
     }
@@ -63,15 +57,15 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
         for (int x = 0; x < inputGrid.width; x++) {
             int currentMacroX = x / inputGrid.macroWidth;
             int currentMacroY = y / inputGrid.macroHeight;
-            std::vector<FeaturePoint> featurePointsToCheck;
-            featurePointsToCheck.reserve(9);
 
             int shortestDistance = std::numeric_limits<int>::max();
             u_int16_t cellID;
 
             // Get all valid adjacent macro cells and the feature points in those macro cells
-            for (int checkedMacroY = currentMacroY - 1; checkedMacroY <= currentMacroY + 1; checkedMacroY++) {
-                for (int checkedMacroX = currentMacroX - 1; checkedMacroX <= currentMacroX + 1; checkedMacroX++) {
+            for (int checkedMacroY = currentMacroY - 1;
+                checkedMacroY <= currentMacroY + 1; checkedMacroY++) {
+                for (int checkedMacroX = currentMacroX - 1;
+                    checkedMacroX <= currentMacroX + 1; checkedMacroX++) {
                     if (checkedMacroX >= 0 && checkedMacroX < numMacroX &&
                         checkedMacroY >= 0 && checkedMacroY < numMacroY) {
                         MacroCell& currentMacroCell =
@@ -80,7 +74,7 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
                             currentMacroCell.featurePoints;
 
                         // For each feature point in this macro cell, calculate the distance
-                        // and check whether its the shortest
+                        // and check whether it's the shortest
                         for (int i = 0; i < currentFeaturePoints.size(); i++) {
                             int dx = currentFeaturePoints[i].x - x;
                             int dy = currentFeaturePoints[i].y - y;
@@ -99,30 +93,29 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed) {
             inputGrid.cells[(y * inputGrid.width) + x] = cellID;
         }
     }
-
-    // Iterate through the grid, assigning each cell the ID of its closest feature point
-    // This will be used for a bitmask:
-    /*for (int y = 0; y < inputGrid.height; y++) {
-        for (int x = 0; x < inputGrid.width; x++) {
-            int currentMacroCellX = x / inputGrid.macroWidth;
-            int currentMacroCellY = y / inputGrid.macroWidth;
-
-            int startingX = (currentMacroCellX - 1) * inputGrid.macroWidth;
-            int startingY = (currentMacroCellY - 1) * inputGrid.macroHeight;
-            if (startingX < 0) { startingX = 0; }
-            if (startingY < 0) { startingY = 0; }
-
-            int endingX = ((currentMacroCellX + 1) * inputGrid.macroWidth)
-                + inputGrid.macroWidth - 1;
-            int endingY = ((currentMacroCellY + 1) * inputGrid.macroHeight)
-                + inputGrid.macroHeight - 1;
-            if (endingX > inputGrid.width - 1) { endingX = inputGrid.width - 1; }
-            if (endingY > inputGrid.height - 1) { endingY = inputGrid.height - 1; }
-
-
-        }
-    }*/
 }
+
+// This will be used for a bitmask:
+/*for (int y = 0; y < inputGrid.height; y++) {
+    for (int x = 0; x < inputGrid.width; x++) {
+        int currentMacroCellX = x / inputGrid.macroWidth;
+        int currentMacroCellY = y / inputGrid.macroWidth;
+
+        int startingX = (currentMacroCellX - 1) * inputGrid.macroWidth;
+        int startingY = (currentMacroCellY - 1) * inputGrid.macroHeight;
+        if (startingX < 0) { startingX = 0; }
+        if (startingY < 0) { startingY = 0; }
+
+        int endingX = ((currentMacroCellX + 1) * inputGrid.macroWidth)
+            + inputGrid.macroWidth - 1;
+        int endingY = ((currentMacroCellY + 1) * inputGrid.macroHeight)
+            + inputGrid.macroHeight - 1;
+        if (endingX > inputGrid.width - 1) { endingX = inputGrid.width - 1; }
+        if (endingY > inputGrid.height - 1) { endingY = inputGrid.height - 1; }
+
+
+    }
+}*/
 
 void printGrid(const VoronoiGrid &inputGrid) {
     // Print out the grid itself
@@ -134,15 +127,4 @@ void printGrid(const VoronoiGrid &inputGrid) {
     }
 
     std::cout << std::endl;
-
-    // Print out the coordinates of each feature point and what macroCell they lie in
-    for (int i = 0; i < inputGrid.macroCells.size(); i++) {
-        std::cout << "(" << inputGrid.macroCells[i].x << ", " <<
-            inputGrid.macroCells[i].y << ") : ";
-        for (int j = 0; j < inputGrid.macroCells[i].featurePoints.size(); j++) {
-            std::cout << inputGrid.macroCells[i].featurePoints[j].x <<
-                ", " << inputGrid.macroCells[i].featurePoints[j].y << " : ";
-        }
-        std::cout << "\n";
-    }
 }

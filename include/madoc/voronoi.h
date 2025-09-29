@@ -1,30 +1,21 @@
 #pragma once
 
 #include <vector>
-#include <unordered_map>
 
-/*
-// WARNING!!! ChatGPT wrote this hash function!!!
-struct PairHash {
-    std::size_t operator()(const std::pair<int, int>& p) const noexcept {
-        // Combine the two ints into one hash
-        // A common trick: shift + xor
-        return std::hash<int>{}(p.first) ^ (std::hash<int>{}(p.second) << 1);
-    }
-};*/
 
 /*
  * Represents a feature point on a 2D plane with an x and y coordinate,
- * a unique ID for its voronoi cell, and a unique ID for its macro cell.
+ * and a unique ID for its voronoi cell.
  */
 struct FeaturePoint {
     int x, y;
     u_int16_t voronoiID;
-    //u_int16_t macroCellID;
 };
 
+/*
+ * Represents a macro cell on the grid, which contains different feature points
+ */
 struct MacroCell {
-    int x, y; // TODO: rename to macroX/macroY?
     std::vector<FeaturePoint> featurePoints;
 };
 
@@ -42,8 +33,6 @@ struct VoronoiGrid {
     std::vector<u_int16_t> cells;
     int macroWidth, macroHeight;
     std::vector<MacroCell> macroCells;
-    //std::vector<FeaturePoint> featurePointList;
-    //std::unordered_map<std::pair<int, int>, std::vector<FeaturePoint>> featurePointMap;
 };
 
 
