@@ -122,7 +122,7 @@ int main() {
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
     printVoronoiGrid(grid);
 
-    const u_int16_t voronoiID = 10;
+    const u_int16_t voronoiID = 0;
     VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
     printBitmask(bitmask, voronoiID);
 
