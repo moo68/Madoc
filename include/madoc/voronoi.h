@@ -13,7 +13,7 @@ struct FeaturePoint {
 };
 
 /*
- * Represents a macro cell on the grid, which contains different feature points
+ * Represents a macro cell on the grid, which contains different feature points.
  */
 struct MacroCell {
     std::vector<FeaturePoint> featurePoints;
@@ -33,19 +33,42 @@ struct VoronoiGrid {
     std::vector<u_int16_t> cells;
     int macroWidth, macroHeight;
     std::vector<MacroCell> macroCells;
+    std::vector<FeaturePoint*> featurePointPointers;
 };
 
+/*
+ * Another grid, but this time just a bitmask with either 0 or 1 as values.
+ */
+struct VoronoiBitmask {
+    int width, height;
+    std::vector<int> mask;
+};
 
-// Instantiates a "blank" VoronoiGrid by assigning its width and height
+/*
+ * Instantiates a "blank" VoronoiGrid by assigning its width, height,
+ * macroWidth, and macroHeight.
+ */
 VoronoiGrid createVoronoiGrid(int width, int height, int macroWidth, int macroHeight);
 
 /*
  * Takes a reference to an already existing VoronoiGrid to actually create
  * voronoi cells pseudorandomly using a given seed. minFeaturePoints and
- * maxFeaturePoints refer to the min and max per macro cell, not whole grid
+ * maxFeaturePoints refer to the min and max per macro cell, not the whole grid.
  */
 void generateVoronoiCells(VoronoiGrid& inputGrid, int seed, int minFeaturePoints,
     int maxFeaturePoints);
 
-// Prints out the given grid into the terminal
-void printGrid(const VoronoiGrid& inputGrid);
+/*
+ * based on a given grid and ID, return a bitmask of only that specific voronoi cell
+ */
+VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, u_int16_t voronoiID);
+
+/*
+ * Prints out the given voronoi grid into the terminal.
+ */
+void printVoronoiGrid(const VoronoiGrid& inputGrid);
+
+/*
+ * Prints out the given bitmask into the terminal.
+ */
+void printBitmask(const VoronoiBitmask& inputGrid);

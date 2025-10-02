@@ -115,12 +115,14 @@ int main() {
     const int macroWidth = 20;
     const int macroHeight = 10;
     const int seed = 20754938;
-    const int minPoints = 1;
+    const int minPoints = 2;
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    printGrid(grid);
+    printVoronoiGrid(grid);
 
+    VoronoiBitmask bitmask = generateVoronoiBitmask(grid, 12);
+    printBitmask(bitmask);
 
     // THE RENDER LOOP
     while(!glfwWindowShouldClose(window))
