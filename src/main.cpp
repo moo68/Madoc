@@ -110,19 +110,22 @@ int main() {
     glEnableVertexAttribArray(0);
 
 
+    // VORONOI STUFF
     const int width = 80;
     const int height = 30;
     const int macroWidth = 20;
     const int macroHeight = 10;
-    const int seed = 20754938;
+    const int seed = 709248357;
     const int minPoints = 2;
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
     printVoronoiGrid(grid);
 
-    VoronoiBitmask bitmask = generateVoronoiBitmask(grid, 12);
-    printBitmask(bitmask);
+    const u_int16_t voronoiID = 10;
+    VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
+    printBitmask(bitmask, voronoiID);
+
 
     // THE RENDER LOOP
     while(!glfwWindowShouldClose(window))
@@ -150,15 +153,19 @@ int main() {
 }
 
 
-// Dynamically change the glViewport's width and/or height if the user changes
-// the window size
+/*
+ * Dynamically change the glViewport's width and/or height if the user changes
+ * the window size.
+ */
 void framebuffer_size_callback(GLFWwindow* window, const int width, const int height)
 {
     glViewport(0, 0, width, height);
 }
 
-// Get user input from the keyboard one time when they press a key
-// key_callback() should be used for single button presses and toggles
+/*
+ * Get user input from the keyboard one time when they press a key
+ * key_callback() should be used for single button presses and toggles
+ */
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     // ESC to exit the program
@@ -176,8 +183,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-// Get user input from the keyboard continuously as the key gets pressed
-// processInput() should be used for inputs that are continuous in nature
+/*
+ * Get user input from the keyboard continuously as the key gets pressed
+ * processInput() should be used for inputs that are continuous in nature
+ */
 void processInput(GLFWwindow *window)
 {
 

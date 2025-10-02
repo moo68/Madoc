@@ -41,7 +41,7 @@ struct VoronoiGrid {
  */
 struct VoronoiBitmask {
     int width, height;
-    std::vector<int> mask;
+    std::vector<bool> mask;
 };
 
 /*
@@ -71,4 +71,4 @@ void printVoronoiGrid(const VoronoiGrid& inputGrid);
 /*
  * Prints out the given bitmask into the terminal.
  */
-void printBitmask(const VoronoiBitmask& inputGrid);
+void printBitmask(const VoronoiBitmask& inputGrid, u_int16_t voronoiID);
