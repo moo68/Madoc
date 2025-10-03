@@ -6,6 +6,7 @@
 #include <madoc/shader_utils.h>
 #include <madoc/log_utils.h>
 #include <madoc/voronoi.h>
+#include <madoc/voronoi_mesh.h>
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
