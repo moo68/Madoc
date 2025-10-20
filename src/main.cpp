@@ -81,6 +81,27 @@ int main() {
     }
 
 
+    // VORONOI STUFF
+    const int width = 80;
+    const int height = 30;
+    const int macroWidth = 20;
+    const int macroHeight = 10;
+    const int seed = 314159265;
+    const int minPoints = 2;
+    const int maxPoints = 3;
+    VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
+    generateVoronoiCells(grid, seed, minPoints, maxPoints);
+    printVoronoiGrid(grid);
+
+    const u_int16_t voronoiID = 5;
+    VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
+    printBitmask(bitmask, voronoiID);
+
+    std::vector<float> edgeVertices = getEdgeVertices(bitmask);
+    /*for (int i = 0; i < edgeVertices.size(); i++) {
+        std::cout << edgeVertices[i] << " ";
+    }*/
+
     // DATA
     float vertices[] = {
         0.5f,  0.5f, 0.0f,  // top right
@@ -109,23 +130,6 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
         static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
-
-
-    // VORONOI STUFF
-    const int width = 80;
-    const int height = 30;
-    const int macroWidth = 20;
-    const int macroHeight = 10;
-    const int seed = 709248357;
-    const int minPoints = 2;
-    const int maxPoints = 3;
-    VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
-    generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    printVoronoiGrid(grid);
-
-    const u_int16_t voronoiID = 0;
-    VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
-    printBitmask(bitmask, voronoiID);
 
 
     // THE RENDER LOOP
