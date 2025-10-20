@@ -20,9 +20,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     std::vector<float> edgeVertices;
     // TODO: Reserve some amount for edgeVertices
 
-    int startingCell = getStartingCell(bitmask);
-    int startingX = startingCell % bitmask.width;
-    int startingY = startingCell / bitmask.width;
+    const int startingCell = getStartingCell(bitmask);
+    const int startingX = startingCell % bitmask.width;
+    const int startingY = startingCell / bitmask.width;
     std::vector<float> startingCoord = {static_cast<float>(startingX), static_cast<float>(startingY), 0.0f};
     edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
 
@@ -31,7 +31,6 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     Direction edgeDirection = NORTH;
     int nextCell = moveAcrossBitmask(bitmask, currentCell, currentDirection);
 
-    std::cout << "(" << startingX << ", " << startingY << ")\n";
     // While the cell's edges haven't been fully traversed
     while (nextCell != startingCell) {
         // If the next cell we look at is empty, check the next clockwise cell
@@ -48,22 +47,44 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
         // If the next cell we look at is *not* empty, move there and update
         // positions and directions accordingly
         else {
-            currentCell = nextCell;
-            std::cout << "(" << currentCell % bitmask.width << ", " << currentCell / bitmask.width << ")\n";
+            Direction newEdgeDirection;
             if (!(currentDirection == EAST || currentDirection == SOUTHEAST)) {
-                edgeDirection = static_cast<Direction>(currentDirection - 2);
+                newEdgeDirection = static_cast<Direction>(currentDirection - 2);
             }
             else if (currentDirection == EAST) {
-                edgeDirection = NORTH;
+                newEdgeDirection = NORTH;
             }
             else {
-                edgeDirection = NORTHEAST;
+                newEdgeDirection = NORTHEAST;
             }
 
+            // If we're changing what direction we're moving in, add the coords
+            // of the current cell to out list of vertices
+            if (newEdgeDirection != edgeDirection && currentCell != startingCell) {
+                int currentX = currentCell % bitmask.width;
+                int currentY = currentCell / bitmask.width;
+                std::vector<float> currentVertex = {static_cast<float>(currentX),
+                    static_cast<float>(currentY), 0.0f};
+                edgeVertices.insert(edgeVertices.end(), currentVertex.begin(), currentVertex.end());
+            }
+            currentCell = nextCell;
+
+            edgeDirection = newEdgeDirection;
             currentDirection = edgeDirection;
             nextCell = moveAcrossBitmask(bitmask, currentCell, currentDirection);
         }
     }
+
+    // Add the final vertex coordinate
+    int finalX = currentCell % bitmask.width;
+    int finalY = currentCell / bitmask.width;
+    std::vector<float> finalVertex = {static_cast<float>(finalX),
+        static_cast<float>(finalY), 0.0f};
+    edgeVertices.insert(edgeVertices.end(), finalVertex.begin(), finalVertex.end());
+
+    /*for (int i = 0; i < edgeVertices.size(); i += 3) {
+        std::cout << "(" << edgeVertices[i] << "," << edgeVertices[i + 1] << "," << edgeVertices[i + 2] << ")\n";
+    }*/
 
     return edgeVertices;
 }

@@ -93,7 +93,7 @@ int main() {
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
     printVoronoiGrid(grid);
 
-    const u_int16_t voronoiID = 5;
+    const u_int16_t voronoiID = 16; // 12: weird isolated edge case
     VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
     printBitmask(bitmask, voronoiID);
 
