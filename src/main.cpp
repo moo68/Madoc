@@ -2,6 +2,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <madoc/shader_utils.h>
 #include <madoc/log_utils.h>
@@ -102,6 +105,10 @@ int main() {
     /*for (int i = 0; i < fanVertices.size(); i += 3) {
         std::cout << "(" << fanVertices[i] << ", " << fanVertices[i + 1] << ", " << fanVertices[i + 2] << ")\n";
     }*/
+
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width),
+        static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+
 
     // DATA
     float vertices[] = {

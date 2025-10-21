@@ -20,7 +20,9 @@ set(SOURCES ${CMAKE_SOURCE_DIR}/external/glad/src/glad.c
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/glad/include ${CMAKE_SOURCE_DIR}/external/glfw/include ${CMAKE_SOURCE_DIR}/include )
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/glad/include
+        ${CMAKE_SOURCE_DIR}/external/glfw/include ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/external/glm)
 
 target_link_libraries(${PROJECT_NAME} glfw)
 
