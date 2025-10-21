@@ -8,6 +8,22 @@ int getStartingCell(const VoronoiBitmask &bitmask) {
         for (int x = 0; x < bitmask.width; x++) {
             int currentCell = (y * bitmask.width) + x;
             if (bitmask.mask[currentCell] == true) {
+                // TODO: Figure out if we actually need something like this:
+                /*// Check to make sure the starting cell has more than just
+                // one neighboring filled cell
+                int numAdjacentFilled = 0;
+                Direction checkedDirection = EAST;
+                for (int i = 0; i < 8; i++) {
+                    int checkedCell = moveAcrossBitmask(bitmask, currentCell, checkedDirection);
+                    if (bitmask.mask[checkedCell]) {
+                        numAdjacentFilled++;
+                    }
+                    checkedDirection = static_cast<Direction>(checkedDirection + 1);
+                }
+
+                if (numAdjacentFilled > 1) {
+                    return currentCell;
+                }*/
                 return currentCell;
             }
         }
@@ -87,6 +103,22 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     }*/
 
     return edgeVertices;
+}
+
+std::vector<float> getCenterVertex(std::vector<float>& vertices) {
+    float centerX = 0.0f;
+    float centerY = 0.0f;
+    int numVertices = vertices.size() / 3;
+    for (int i = 0; i < vertices.size(); i += 3) {
+        centerX += vertices[i];
+        centerY += vertices[i + 1];
+    }
+    centerX /= static_cast<float>(numVertices);
+    centerY /= static_cast<float>(numVertices);
+    std::vector<float> completeVertices = {centerX, centerY, 0.0f};
+    completeVertices.insert(completeVertices.end(), vertices.begin(), vertices.end());
+
+    return completeVertices;
 }
 
 int moveAcrossBitmask(const VoronoiBitmask &bitmask, int currentCell, Direction direction) {

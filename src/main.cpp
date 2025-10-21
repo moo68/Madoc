@@ -98,8 +98,9 @@ int main() {
     printBitmask(bitmask, voronoiID);
 
     std::vector<float> edgeVertices = getEdgeVertices(bitmask);
-    /*for (int i = 0; i < edgeVertices.size(); i++) {
-        std::cout << edgeVertices[i] << " ";
+    std::vector<float> fanVertices = getCenterVertex(edgeVertices);
+    /*for (int i = 0; i < fanVertices.size(); i += 3) {
+        std::cout << "(" << fanVertices[i] << ", " << fanVertices[i + 1] << ", " << fanVertices[i + 2] << ")\n";
     }*/
 
     // DATA
@@ -119,13 +120,13 @@ int main() {
     GLuint VBO, EBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    //glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (fanVertices.size() * sizeof(float)), fanVertices.data(), GL_STATIC_DRAW);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
         static_cast<void *>(nullptr));
@@ -142,15 +143,15 @@ int main() {
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, fanVertices.size() / 3);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    //glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
 
     glfwTerminate();
