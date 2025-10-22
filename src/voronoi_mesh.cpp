@@ -99,6 +99,7 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
         static_cast<float>(finalY) + 0.5f, 0.0f};
     edgeVertices.insert(edgeVertices.end(), finalVertex.begin(), finalVertex.end());
 
+    edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
     /*for (int i = 0; i < edgeVertices.size(); i += 3) {
         std::cout << "(" << edgeVertices[i] << "," << edgeVertices[i + 1] << "," << edgeVertices[i + 2] << ")\n";
     }*/
