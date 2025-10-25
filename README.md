@@ -8,13 +8,13 @@ Done in collaboration with a mentor through the LaunchPad club at Purdue. Thank 
 See /external for the different external libraries vendored in, such as GLAD and GLFW.
 ## To-Do
 - OpenGL boilerplate [DONE]
-- Voronoi cell generation logic [DONE]
+- Voronoi cell generation logic [DONE]*
 - Bitmask logic for a specific Voronoi cell [DONE]
 - Converting Voronoi cells into veritces [DONE]*
 - Triangularizing Voronoi cells (triangle fan) [DONE]
-- Properly rendering a full grid of Voronoi cells
+- Properly rendering a full grid of Voronoi cells [DONE]*
 - Triangularizing Voronoi cells (ear clipping)
 - Changing Voronoi cell attributes based on Perlin noise
 - ...and more
 
-*This might be something that needs to get looked at again; still fully functional, though
+*Due to imperfect voronoi cell generation (some weird edge-cases) some seeds are invalid and cannot be rendered. Will hopefully be fixed soon!
