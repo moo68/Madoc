@@ -11,8 +11,9 @@ See /external for the different external libraries vendored in, such as GLAD and
 - Voronoi cell generation logic [DONE]
 - Bitmask logic for a specific Voronoi cell [DONE]
 - Converting Voronoi cells into veritces [DONE]*
-- Triangularizing Voronoi cells (ear clipping) [IN PROGRESS]
+- Triangularizing Voronoi cells (triangle fan) [DONE]
 - Properly rendering a full grid of Voronoi cells
+- Triangularizing Voronoi cells (ear clipping)
 - Changing Voronoi cell attributes based on Perlin noise
 - ...and more
 
