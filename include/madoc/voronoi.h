@@ -42,6 +42,7 @@ struct VoronoiGrid {
  */
 struct VoronoiBitmask {
     int width, height;
+    int xOffset, yOffset;
     std::vector<bool> mask;
 };
 

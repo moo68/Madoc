@@ -39,8 +39,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     const int startingCell = getStartingCell(bitmask);
     const int startingX = startingCell % bitmask.width;
     const int startingY = startingCell / bitmask.width;
-    std::vector<float> startingCoord = {static_cast<float>(startingX) + 0.5f,
-        static_cast<float>(startingY) + 0.5f, 0.0f};
+    std::vector<float> startingCoord = {static_cast<float>(startingX) +
+        static_cast<float>(bitmask.xOffset) + 0.5f,
+        static_cast<float>(startingY) + static_cast<float>(bitmask.yOffset) + 0.5f, 0.0f};
     edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
 
     int currentCell = startingCell;
@@ -80,8 +81,10 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
             if (newEdgeDirection != edgeDirection && currentCell != startingCell) {
                 int currentX = currentCell % bitmask.width;
                 int currentY = currentCell / bitmask.width;
-                std::vector<float> currentVertex = {static_cast<float>(currentX) + 0.5f,
-                    static_cast<float>(currentY) + 0.5f, 0.0f};
+                std::vector<float> currentVertex = {static_cast<float>(currentX) +
+                    static_cast<float>(bitmask.xOffset) + 0.5f,
+                    static_cast<float>(currentY) + static_cast<float>(bitmask.yOffset)
+                    + 0.5f, 0.0f};
                 edgeVertices.insert(edgeVertices.end(), currentVertex.begin(), currentVertex.end());
             }
             currentCell = nextCell;
@@ -95,8 +98,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     // Add the final vertex coordinate
     int finalX = currentCell % bitmask.width;
     int finalY = currentCell / bitmask.width;
-    std::vector<float> finalVertex = {static_cast<float>(finalX) + 0.5f,
-        static_cast<float>(finalY) + 0.5f, 0.0f};
+    std::vector<float> finalVertex = {static_cast<float>(finalX) +
+        static_cast<float>(bitmask.xOffset) + 0.5f,
+        static_cast<float>(finalY) + static_cast<float>(bitmask.yOffset) + 0.5f, 0.0f};
     edgeVertices.insert(edgeVertices.end(), finalVertex.begin(), finalVertex.end());
 
     edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
@@ -107,7 +111,7 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     return edgeVertices;
 }
 
-std::vector<float> getCenterVertex(std::vector<float>& vertices) {
+std::vector<float> getCenterVertex(const VoronoiBitmask &bitmask, std::vector<float>& vertices) {
     float centerX = 0.0f;
     float centerY = 0.0f;
     int numVertices = vertices.size() / 3;
@@ -115,9 +119,13 @@ std::vector<float> getCenterVertex(std::vector<float>& vertices) {
         centerX += vertices[i];
         centerY += vertices[i + 1];
     }
-    centerX /= static_cast<float>(numVertices) + 0.5f;
-    centerY /= static_cast<float>(numVertices) + 0.5f;
+    centerX /= static_cast<float>(numVertices);
+    centerY /= static_cast<float>(numVertices);
+    centerX += /*static_cast<float>(bitmask.xOffset)*/ + 0.5f;
+    centerY += /*static_cast<float>(bitmask.yOffset)*/ + 0.5f;
     std::vector<float> completeVertices = {centerX, centerY, 0.0f};
+    std::cout << "Bitmask offsets: " << bitmask.xOffset << ", " << bitmask.yOffset << "\n";
+    std::cout << "Centroid coords: " << completeVertices[0] << ", " << completeVertices[1] << "\n";
     completeVertices.insert(completeVertices.end(), vertices.begin(), vertices.end());
 
     return completeVertices;

@@ -36,7 +36,7 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask& bitmask);
  * Get the center of the shape based on its edge vertices and add
  * its center vertex to the beginning of its list of vertices
  */
-std::vector<float> getCenterVertex(std::vector<float>& vertices);
+std::vector<float> getCenterVertex(const VoronoiBitmask& bitmask, std::vector<float>& vertices);
 
 /*
  * Return the integer of the cell that was moved to based on the current cell and

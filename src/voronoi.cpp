@@ -136,6 +136,8 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     VoronoiBitmask bitmask;
     bitmask.width = maskWidth;
     bitmask.height = maskHeight;
+    bitmask.xOffset = startingX;
+    bitmask.yOffset = startingY;
     bitmask.mask.resize(maskWidth * maskHeight, false);
 
     // Iterate through the inputGrid to fill the bitmask

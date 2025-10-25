@@ -95,7 +95,7 @@ int main() {
     const int height = 30;
     const int macroWidth = 20;
     const int macroHeight = 10;
-    const int seed = 314159265; //Other seed: 314159265 //Missing cell 17: 60294323
+    const int seed = 542930; //Other seed: 314159265 //Missing cell 17: 60294323
     const int minPoints = 2;
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
@@ -121,7 +121,8 @@ int main() {
     for (int i = 0; i < bitmasks.size(); i++) {
         VoronoiBitmask& currentBitmask = bitmasks[i];
         std::vector<float> currentEdgeVertices = getEdgeVertices(currentBitmask);
-        std::vector<float> currentFanVertices = getCenterVertex(currentEdgeVertices);
+        std::vector<float> currentFanVertices = getCenterVertex(currentBitmask,
+            currentEdgeVertices);
         cellsVertices.push_back(currentFanVertices);
     }
 
@@ -171,7 +172,7 @@ int main() {
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
         model = glm::scale(model, glm::vec3(1.0f));
         //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1, 0, 0));
-        view = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2, -height / 2, -3.0f));
+        view = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2, -height / 2, -80.0f));
         projection = glm::perspective(glm::radians(45.0f),
             static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.1f, 100.0f);
 
