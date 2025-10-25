@@ -1,6 +1,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
+#include <filesystem>
 
 #include <madoc/shader_utils.h>
 #include <madoc/log_utils.h>

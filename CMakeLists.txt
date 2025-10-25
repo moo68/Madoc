@@ -26,7 +26,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/
 
 target_link_libraries(${PROJECT_NAME} glfw)
 
-file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
