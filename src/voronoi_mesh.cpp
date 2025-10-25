@@ -7,7 +7,7 @@ int getStartingCell(const VoronoiBitmask &bitmask) {
     for (int y = 0; y < bitmask.height; y++) {
         for (int x = 0; x < bitmask.width; x++) {
             int currentCell = (y * bitmask.width) + x;
-            if (bitmask.mask[currentCell] == true) {
+            if (bitmask.mask[currentCell]) {
                 // TODO: Figure out if we actually need something like this:
                 /*// Check to make sure the starting cell has more than just
                 // one neighboring filled cell

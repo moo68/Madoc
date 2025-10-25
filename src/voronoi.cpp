@@ -18,6 +18,8 @@ VoronoiGrid createVoronoiGrid(const int width, const int height,
     outputGrid.macroWidth = macroWidth;
     outputGrid.macroHeight = macroHeight;
 
+    outputGrid.numFeaturePoints = 0;
+
     return outputGrid;
 }
 
@@ -47,6 +49,7 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed,
                 // Edit the grid to include the feature point
                 inputGrid.cells[(featurePointY * inputGrid.width) + featurePointX] = voronoiID;
                 featurePoints.push_back({featurePointX, featurePointY, voronoiID});
+                inputGrid.numFeaturePoints++;
                 voronoiID++;
             }
             inputGrid.macroCells.push_back({featurePoints});
@@ -133,7 +136,7 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     VoronoiBitmask bitmask;
     bitmask.width = maskWidth;
     bitmask.height = maskHeight;
-    bitmask.mask.reserve(maskWidth * maskHeight);
+    bitmask.mask.resize(maskWidth * maskHeight, false);
 
     // Iterate through the inputGrid to fill the bitmask
     for (int y = startingY; y <= endingY; y++) {

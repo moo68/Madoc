@@ -20,6 +20,8 @@ bool isWireframe = false;
 
 
 int main() {
+    std::cout << "Start of main\n";
+
     // BOILERPLATE NONSENSE
     if (!glfwInit()) {
         std::cerr << "GLFW failed to initialize!" << std::endl;
@@ -57,6 +59,7 @@ int main() {
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
 
+    std::cout << "GLFW boilerplate complete\n";
 
     // SHADERS
     // Load shader files
@@ -85,26 +88,48 @@ int main() {
         return -1;
     }
 
+    std::cout << "Shader complete\n";
 
     // VORONOI STUFF
     const int width = 80;
     const int height = 30;
     const int macroWidth = 20;
     const int macroHeight = 10;
-    const int seed = 314159265;
+    const int seed = 314159265; //Other seed: 314159265 //Missing cell 17: 60294323
     const int minPoints = 2;
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    //printVoronoiGrid(grid);
+    printVoronoiGrid(grid);
 
-    const u_int16_t voronoiID = 16; // 12: weird isolated edge case; 19: fan no-workey
-    VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
+    // Get a list of all bitmask data
+    std::vector<VoronoiBitmask> bitmasks;
+    bitmasks.reserve(grid.numFeaturePoints);
+    for (int i  = 0; i < grid.numFeaturePoints; i++) {
+        VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
+        bitmasks.push_back(currentBitmask);
+    }
+    std::cout << "Bitmask data complete\n";
+
+    //const u_int16_t voronoiID = 16; // 12: weird isolated edge case; 19: fan no-workey
+    //VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
     //printBitmask(bitmask, voronoiID);
 
-    std::vector<float> edgeVertices = getEdgeVertices(bitmask);
-    std::vector<float> fanVertices = getCenterVertex(edgeVertices);
-    std::vector<float> centroid = {fanVertices[0], fanVertices[1], fanVertices[2]};
+    // Get a list of all vertex data for each voronoi cell
+    std::vector<std::vector<float>> cellsVertices;
+    cellsVertices.reserve(grid.numFeaturePoints);
+    for (int i = 0; i < bitmasks.size(); i++) {
+        VoronoiBitmask& currentBitmask = bitmasks[i];
+        std::vector<float> currentEdgeVertices = getEdgeVertices(currentBitmask);
+        std::vector<float> currentFanVertices = getCenterVertex(currentEdgeVertices);
+        cellsVertices.push_back(currentFanVertices);
+    }
+
+    std::cout << "Vertex data complete\n";
+
+    //std::vector<float> edgeVertices = getEdgeVertices(bitmask);
+    //std::vector<float> fanVertices = getCenterVertex(edgeVertices);
+    //std::vector<float> centroid = {fanVertices[0], fanVertices[1], fanVertices[2]};
 
 
     // BUFFERS AND SUCH
@@ -115,7 +140,7 @@ int main() {
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, (fanVertices.size() * sizeof(float)), fanVertices.data(), GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, (fanVertices.size() * sizeof(float)), fanVertices.data(), GL_STATIC_DRAW);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -128,6 +153,8 @@ int main() {
 
 
     // THE RENDER LOOP
+    std::cout << "Entering render loop\n";
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -135,17 +162,20 @@ int main() {
         glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Set projection matrices
         glm::mat4 model         = glm::mat4(1.0f);
         glm::mat4 view          = glm::mat4(1.0f);
         glm::mat4 projection    = glm::mat4(1.0f);
         //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(-centroid[0], -centroid[1], -20.0f));
+        //model = glm::translate(model, glm::vec3(-centroid[0], -centroid[1], -20.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
         model = glm::scale(model, glm::vec3(1.0f));
         //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1, 0, 0));
-        view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+        view = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2, -height / 2, -3.0f));
         projection = glm::perspective(glm::radians(45.0f),
             static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.1f, 100.0f);
 
+        // Use shader uniforms
         glUseProgram(shaderProgram);
         GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
         GLuint viewLoc  = glGetUniformLocation(shaderProgram, "view");
@@ -155,10 +185,20 @@ int main() {
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glBindVertexArray(VAO);
+        // Draw stuff on screen
+        for (int i = 0; i < cellsVertices.size(); i++) {
+            std::vector<float>& vertices = cellsVertices[i];
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
+                cellsVertices[i].data(), GL_STATIC_DRAW);
+            glBindVertexArray(VAO);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size() / 3);
+        }
+
+        //glBindVertexArray(VAO);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, fanVertices.size() / 3);
+        //glDrawArrays(GL_TRIANGLE_FAN, 0, fanVertices.size() / 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

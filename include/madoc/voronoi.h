@@ -33,6 +33,7 @@ struct VoronoiGrid {
     std::vector<u_int16_t> cells;
     int macroWidth, macroHeight;
     std::vector<MacroCell> macroCells;
+    int numFeaturePoints;
     std::vector<FeaturePoint*> featurePointPointers;
 };
 
