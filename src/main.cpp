@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -73,6 +74,7 @@ int main() {
         logError("shader_utils", error.what());
         return -1;
     }
+    std::cout << fragment;
     const char* vertexShaderSource = vertex.c_str();
     const char* fragmentShaderSource = fragment.c_str();
     // Set up the shader program
@@ -91,16 +93,16 @@ int main() {
     std::cout << "Shader complete\n";
 
     // VORONOI STUFF
-    const int width = 80;
-    const int height = 30;
+    const int width = 200;
+    const int height = 120;
     const int macroWidth = 20;
-    const int macroHeight = 10;
-    const int seed = 542930; //Other seed: 314159265 //Missing cell 17: 60294323
+    const int macroHeight = 12;
+    const int seed = 54296452; //Other seed: 314159265 //Missing cell 17: 60294323
     const int minPoints = 2;
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    printVoronoiGrid(grid);
+    //printVoronoiGrid(grid);
 
     // Get a list of all bitmask data
     std::vector<VoronoiBitmask> bitmasks;
@@ -110,10 +112,6 @@ int main() {
         bitmasks.push_back(currentBitmask);
     }
     std::cout << "Bitmask data complete\n";
-
-    //const u_int16_t voronoiID = 16; // 12: weird isolated edge case; 19: fan no-workey
-    //VoronoiBitmask bitmask = generateVoronoiBitmask(grid, voronoiID);
-    //printBitmask(bitmask, voronoiID);
 
     // Get a list of all vertex data for each voronoi cell
     std::vector<std::vector<float>> cellsVertices;
@@ -125,12 +123,7 @@ int main() {
             currentEdgeVertices);
         cellsVertices.push_back(currentFanVertices);
     }
-
     std::cout << "Vertex data complete\n";
-
-    //std::vector<float> edgeVertices = getEdgeVertices(bitmask);
-    //std::vector<float> fanVertices = getCenterVertex(edgeVertices);
-    //std::vector<float> centroid = {fanVertices[0], fanVertices[1], fanVertices[2]};
 
 
     // BUFFERS AND SUCH
@@ -141,7 +134,6 @@ int main() {
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //glBufferData(GL_ARRAY_BUFFER, (fanVertices.size() * sizeof(float)), fanVertices.data(), GL_STATIC_DRAW);
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -152,6 +144,11 @@ int main() {
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
 
+
+    std::mt19937 generator(seed);
+    std::uniform_real_distribution<float> randomRed(0.0f, 1.0f);
+    std::uniform_real_distribution<float> randomGreen(0.0f, 1.0f);
+    std::uniform_real_distribution<float> randomBlue(0.0f, 1.0f);
 
     // THE RENDER LOOP
     std::cout << "Entering render loop\n";
@@ -167,39 +164,42 @@ int main() {
         glm::mat4 model         = glm::mat4(1.0f);
         glm::mat4 view          = glm::mat4(1.0f);
         glm::mat4 projection    = glm::mat4(1.0f);
-        //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        //model = glm::translate(model, glm::vec3(-centroid[0], -centroid[1], -20.0f));
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
         model = glm::scale(model, glm::vec3(1.0f));
-        //model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1, 0, 0));
-        view = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2, height / 2, -80.0f));
+        view = glm::translate(glm::mat4(1.0f), glm::vec3(-width / 2, height / 2, -150.0f));
         projection = glm::perspective(glm::radians(45.0f),
-            static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.1f, 100.0f);
+            static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.1f, 200.0f);
+
+        //glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 
         // Use shader uniforms
         glUseProgram(shaderProgram);
         GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
         GLuint viewLoc  = glGetUniformLocation(shaderProgram, "view");
         GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        GLuint colorLoc = glGetUniformLocation(shaderProgram, "color");
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);
 
         // Draw stuff on screen
         for (int i = 0; i < cellsVertices.size(); i++) {
             std::vector<float>& vertices = cellsVertices[i];
+
+            //float red = randomRed(generator);
+            //float green = randomGreen(generator);
+            //float blue = randomBlue(generator);
+            float colorValue = static_cast<float>(i) / static_cast<float>(grid.numFeaturePoints);
+            glUniform3f(colorLoc, colorValue, 0.0f, 0.0f);
+
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
                 cellsVertices[i].data(), GL_STATIC_DRAW);
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size() / 3);
         }
-
-        //glBindVertexArray(VAO);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        //glDrawArrays(GL_TRIANGLE_FAN, 0, fanVertices.size() / 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
