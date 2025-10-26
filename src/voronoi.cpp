@@ -31,11 +31,10 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed,
     std::uniform_int_distribution<int> randomY(0, inputGrid.macroHeight - 1);
     std::uniform_int_distribution<int> randomFeaturePoints(minFeaturePoints, maxFeaturePoints);
 
-    // TODO: make sure feature points can't spawn on already existing feature points?
-
     const int numMacroX = inputGrid.width / inputGrid.macroWidth;
     const int numMacroY = inputGrid.height / inputGrid.macroHeight;
     u_int16_t voronoiID = 0;
+    std::vector<int> generatedPoints;
 
     // Randomly assign some grid cells as feature points
     for (int macroY = 0; macroY < numMacroY; macroY++) {
@@ -43,14 +42,32 @@ void generateVoronoiCells(VoronoiGrid &inputGrid, const int seed,
             std::vector<FeaturePoint> featurePoints;
             featurePoints.reserve(maxFeaturePoints);
             for (int i = 0; i < randomFeaturePoints(generator); i++) {
-                int featurePointX = randomX(generator) + (macroX * inputGrid.macroWidth);
-                int featurePointY = randomY(generator) + (macroY * inputGrid.macroHeight);
+                int featurePointX = randomX(generator) +
+                    (macroX * inputGrid.macroWidth);
+                int featurePointY = randomY(generator) +
+                    (macroY * inputGrid.macroHeight);
+
+                // Check if the generated point is a duplicate
+                bool duplicatePoint = false;
+                for (int j = 0; j < generatedPoints.size(); j += 2) {
+                    if (generatedPoints[j] == featurePointX &&
+                        generatedPoints[j + 1] == featurePointY) {
+                        duplicatePoint = true;
+                        i--;
+                    }
+                }
+                generatedPoints.push_back(featurePointX);
+                generatedPoints.push_back(featurePointY);
 
                 // Edit the grid to include the feature point
-                inputGrid.cells[(featurePointY * inputGrid.width) + featurePointX] = voronoiID;
-                featurePoints.push_back({featurePointX, featurePointY, voronoiID});
-                inputGrid.numFeaturePoints++;
-                voronoiID++;
+                if (!duplicatePoint) {
+                    inputGrid.cells[(featurePointY * inputGrid.width) +
+                        featurePointX] = voronoiID;
+                    featurePoints.push_back({featurePointX, featurePointY,
+                        voronoiID});
+                    inputGrid.numFeaturePoints++;
+                    voronoiID++;
+                }
             }
             inputGrid.macroCells.push_back({featurePoints});
             featurePoints.clear();

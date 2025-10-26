@@ -97,7 +97,7 @@ int main() {
     const int height = 120;
     const int macroWidth = 20;
     const int macroHeight = 12;
-    const int seed = 54296452; //Other seed: 314159265 //Missing cell 17: 60294323
+    const int seed = 90204343; //Other seed: 314159265 //Missing cell 17: 60294323 // 54296452
     const int minPoints = 2;
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
@@ -126,9 +126,9 @@ int main() {
 
     // Get color data for each vertex
     std::mt19937 colorGenerator(seed);
-    std::uniform_real_distribution<float> randomRed(0.2f, 1.0f);
-    std::uniform_real_distribution<float> randomGreen(0.2f, 1.0f);
-    std::uniform_real_distribution<float> randomBlue(0.2f, 1.0f);
+    std::uniform_real_distribution<float> randomRed(0.1f, 1.0f);
+    std::uniform_real_distribution<float> randomGreen(0.1f, 1.0f);
+    std::uniform_real_distribution<float> randomBlue(0.1f, 1.0f);
     std::vector<std::vector<float>> vertexColors;
     vertexColors.reserve(grid.numFeaturePoints * 3);
     for (int i = 0; i < grid.numFeaturePoints; i++) {
