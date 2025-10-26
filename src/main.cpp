@@ -104,7 +104,7 @@ int main() {
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
     //printVoronoiGrid(grid);
 
-    // Get a list of all bitmask data
+    // Get a list of all bitmasks
     std::vector<VoronoiBitmask> bitmasks;
     bitmasks.reserve(grid.numFeaturePoints);
     for (int i  = 0; i < grid.numFeaturePoints; i++) {
@@ -113,7 +113,7 @@ int main() {
     }
     std::cout << "Bitmask data complete\n";
 
-    // Get a list of all vertex data for each voronoi cell
+    // Get a list of all vertex positions for each voronoi cell
     std::vector<std::vector<float>> cellsVertices;
     cellsVertices.reserve(grid.numFeaturePoints);
     for (int i = 0; i < bitmasks.size(); i++) {
@@ -122,6 +122,35 @@ int main() {
         std::vector<float> currentFanVertices = getCenterVertex(currentBitmask,
             currentEdgeVertices);
         cellsVertices.push_back(currentFanVertices);
+    }
+
+    // Get color data for each vertex
+    std::mt19937 colorGenerator(seed);
+    std::uniform_real_distribution<float> randomRed(0.2f, 1.0f);
+    std::uniform_real_distribution<float> randomGreen(0.2f, 1.0f);
+    std::uniform_real_distribution<float> randomBlue(0.2f, 1.0f);
+    std::vector<std::vector<float>> vertexColors;
+    vertexColors.reserve(grid.numFeaturePoints * 3);
+    for (int i = 0; i < grid.numFeaturePoints; i++) {
+        float red = randomRed(colorGenerator);
+        float green = randomGreen(colorGenerator);
+        float blue = randomBlue(colorGenerator);
+        std::vector<float> currentColor = {red, green, blue};
+        vertexColors.push_back(currentColor);
+    }
+
+    // Add color data to position data
+    for (int i = 0; i < cellsVertices.size(); i++) {
+        std::vector<float> currentColor = vertexColors[i];
+        for (int j = 3; j < cellsVertices[i].size(); j += 3) {
+            cellsVertices[i].insert(cellsVertices[i].begin() + j, currentColor[0]);
+            cellsVertices[i].insert(cellsVertices[i].begin() + j + 1, currentColor[1]);
+            cellsVertices[i].insert(cellsVertices[i].begin() + j + 2, currentColor[2]);
+            j += 3;
+        }
+        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[0]);
+        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[1]);
+        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[2]);
     }
     std::cout << "Vertex data complete\n";
 
@@ -137,18 +166,16 @@ int main() {
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
         static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+        reinterpret_cast<void *>(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
 
-
-    std::mt19937 generator(seed);
-    std::uniform_real_distribution<float> randomRed(0.0f, 1.0f);
-    std::uniform_real_distribution<float> randomGreen(0.0f, 1.0f);
-    std::uniform_real_distribution<float> randomBlue(0.0f, 1.0f);
 
     // THE RENDER LOOP
     std::cout << "Entering render loop\n";
@@ -157,7 +184,7 @@ int main() {
     {
         processInput(window);
 
-        glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
+        //glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Set projection matrices
@@ -177,28 +204,22 @@ int main() {
         GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
         GLuint viewLoc  = glGetUniformLocation(shaderProgram, "view");
         GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-        GLuint colorLoc = glGetUniformLocation(shaderProgram, "color");
+        //GLuint colorLoc = glGetUniformLocation(shaderProgram, "color");
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);
+        //glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);
 
         // Draw stuff on screen
         for (int i = 0; i < cellsVertices.size(); i++) {
             std::vector<float>& vertices = cellsVertices[i];
 
-            //float red = randomRed(generator);
-            //float green = randomGreen(generator);
-            //float blue = randomBlue(generator);
-            float colorValue = static_cast<float>(i) / static_cast<float>(grid.numFeaturePoints);
-            glUniform3f(colorLoc, colorValue, 0.0f, 0.0f);
-
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
                 cellsVertices[i].data(), GL_STATIC_DRAW);
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size() / 3);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size() / 6);
         }
 
         glfwSwapBuffers(window);
