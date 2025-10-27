@@ -1,5 +1,6 @@
 #include <iostream>
 #include <random>
+#include <chrono>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -93,10 +94,13 @@ int main() {
 
     std::cout << "Shader complete\n";
 
+
+    // WORLD GENERATION
     int width = 200;
     int height = 120;
     int seed = 294852343; // 294852343 //BUGGED SEED: 145134800; CELL 235
     std::vector<std::vector<float>> worldVertices = generateWorldVertices(width, height, seed);
+
 
     // BUFFERS AND SUCH
     GLuint VBO, EBO, VAO;
@@ -127,14 +131,25 @@ int main() {
     std::uniform_int_distribution<int> randomSeed(0, 999999999);
     double lastSeedTime = glfwGetTime();
     double seedInterval = 2.0f;
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
         double currentTime = glfwGetTime();
+
+        // Generate a new world every few seconds
         if (currentTime - lastSeedTime >= seedInterval) {
             seed = randomSeed(seedGenerator);
             std::cout << "Current Seed: " << seed << "\n";
+
+            auto start = std::chrono::high_resolution_clock::now();
+
             worldVertices = generateWorldVertices(width, height, seed);
+
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end - start;
+            std::cout << "Generation took " << diff << "s\n";
+
             lastSeedTime = currentTime;
         }
 
@@ -151,19 +166,15 @@ int main() {
         projection = glm::perspective(glm::radians(45.0f),
             static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.1f, 200.0f);
 
-        //glm::vec4 color = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-
         // Use shader uniforms
         glUseProgram(shaderProgram);
         GLuint modelLoc = glGetUniformLocation(shaderProgram, "model");
         GLuint viewLoc  = glGetUniformLocation(shaderProgram, "view");
         GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-        //GLuint colorLoc = glGetUniformLocation(shaderProgram, "color");
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        //glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);
 
         // Draw stuff on screen
         for (int i = 0; i < worldVertices.size(); i++) {
@@ -245,9 +256,6 @@ std::vector<std::vector<float>> generateWorldVertices(int width, int height, int
     for (int i  = 0; i < grid.numFeaturePoints; i++) {
         VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
         bitmasks.push_back(currentBitmask);
-        /*if (i == 235) {
-            printBitmask(currentBitmask, i);
-        }*/ // This is a bugged cell on seed 145134800
     }
     std::cout << "Bitmask data complete\n";
 

@@ -7,24 +7,17 @@ int getStartingCell(const VoronoiBitmask &bitmask) {
     for (int y = 0; y < bitmask.height; y++) {
         for (int x = 0; x < bitmask.width; x++) {
             int currentCell = (y * bitmask.width) + x;
+
+            // If the starting cell has at least one neighbor, it's valid
             if (bitmask.mask[currentCell]) {
-                // TODO: Figure out if we actually need something like this:
-                /*// Check to make sure the starting cell has more than just
-                // one neighboring filled cell
-                int numAdjacentFilled = 0;
                 Direction checkedDirection = EAST;
                 for (int i = 0; i < 8; i++) {
                     int checkedCell = moveAcrossBitmask(bitmask, currentCell, checkedDirection);
                     if (bitmask.mask[checkedCell]) {
-                        numAdjacentFilled++;
+                        return currentCell;
                     }
                     checkedDirection = static_cast<Direction>(checkedDirection + 1);
                 }
-
-                if (numAdjacentFilled > 1) {
-                    return currentCell;
-                }*/
-                return currentCell;
             }
         }
     }
