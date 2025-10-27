@@ -17,4 +17,4 @@ See /external for the different external libraries vendored in, such as GLAD and
 - Changing Voronoi cell attributes based on Perlin noise
 - ...and more
 
-* Currently, sometimes garbage data randomly gets read for some vertices; should hopefully get fixed soon!
+*Currently, sometimes garbage data randomly gets read for some vertices; should hopefully get fixed soon!
