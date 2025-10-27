@@ -16,6 +16,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);
+std::vector<std::vector<float>> generateWorldVertices(int width, int height, int seed);
 
 bool isWireframe = false;
 
@@ -92,68 +93,10 @@ int main() {
 
     std::cout << "Shader complete\n";
 
-    // VORONOI STUFF
-    const int width = 200;
-    const int height = 120;
-    const int macroWidth = 20;
-    const int macroHeight = 12;
-    const int seed = 90204343; //Other seed: 314159265 //Missing cell 17: 60294323 // 54296452
-    const int minPoints = 2;
-    const int maxPoints = 3;
-    VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
-    generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    //printVoronoiGrid(grid);
-
-    // Get a list of all bitmasks
-    std::vector<VoronoiBitmask> bitmasks;
-    bitmasks.reserve(grid.numFeaturePoints);
-    for (int i  = 0; i < grid.numFeaturePoints; i++) {
-        VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
-        bitmasks.push_back(currentBitmask);
-    }
-    std::cout << "Bitmask data complete\n";
-
-    // Get a list of all vertex positions for each voronoi cell
-    std::vector<std::vector<float>> cellsVertices;
-    cellsVertices.reserve(grid.numFeaturePoints);
-    for (int i = 0; i < bitmasks.size(); i++) {
-        VoronoiBitmask& currentBitmask = bitmasks[i];
-        std::vector<float> currentEdgeVertices = getEdgeVertices(currentBitmask);
-        std::vector<float> currentFanVertices = getCenterVertex(currentBitmask,
-            currentEdgeVertices);
-        cellsVertices.push_back(currentFanVertices);
-    }
-
-    // Get color data for each vertex
-    std::mt19937 colorGenerator(seed);
-    std::uniform_real_distribution<float> randomRed(0.1f, 1.0f);
-    std::uniform_real_distribution<float> randomGreen(0.1f, 1.0f);
-    std::uniform_real_distribution<float> randomBlue(0.1f, 1.0f);
-    std::vector<std::vector<float>> vertexColors;
-    vertexColors.reserve(grid.numFeaturePoints * 3);
-    for (int i = 0; i < grid.numFeaturePoints; i++) {
-        float red = randomRed(colorGenerator);
-        float green = randomGreen(colorGenerator);
-        float blue = randomBlue(colorGenerator);
-        std::vector<float> currentColor = {red, green, blue};
-        vertexColors.push_back(currentColor);
-    }
-
-    // Add color data to position data
-    for (int i = 0; i < cellsVertices.size(); i++) {
-        std::vector<float> currentColor = vertexColors[i];
-        for (int j = 3; j < cellsVertices[i].size(); j += 3) {
-            cellsVertices[i].insert(cellsVertices[i].begin() + j, currentColor[0]);
-            cellsVertices[i].insert(cellsVertices[i].begin() + j + 1, currentColor[1]);
-            cellsVertices[i].insert(cellsVertices[i].begin() + j + 2, currentColor[2]);
-            j += 3;
-        }
-        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[0]);
-        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[1]);
-        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[2]);
-    }
-    std::cout << "Vertex data complete\n";
-
+    int width = 200;
+    int height = 120;
+    int seed = 294852343; // 294852343 //BUGGED SEED: 145134800; CELL 235
+    std::vector<std::vector<float>> worldVertices = generateWorldVertices(width, height, seed);
 
     // BUFFERS AND SUCH
     GLuint VBO, EBO, VAO;
@@ -180,9 +123,20 @@ int main() {
     // THE RENDER LOOP
     std::cout << "Entering render loop\n";
 
+    std::mt19937 seedGenerator(314159265);
+    std::uniform_int_distribution<int> randomSeed(0, 999999999);
+    double lastSeedTime = glfwGetTime();
+    double seedInterval = 2.0f;
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
+        double currentTime = glfwGetTime();
+        if (currentTime - lastSeedTime >= seedInterval) {
+            seed = randomSeed(seedGenerator);
+            std::cout << "Current Seed: " << seed << "\n";
+            worldVertices = generateWorldVertices(width, height, seed);
+            lastSeedTime = currentTime;
+        }
 
         //glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,12 +166,12 @@ int main() {
         //glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f);
 
         // Draw stuff on screen
-        for (int i = 0; i < cellsVertices.size(); i++) {
-            std::vector<float>& vertices = cellsVertices[i];
+        for (int i = 0; i < worldVertices.size(); i++) {
+            std::vector<float>& vertices = worldVertices[i];
 
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
-                cellsVertices[i].data(), GL_STATIC_DRAW);
+                worldVertices[i].data(), GL_STATIC_DRAW);
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size() / 6);
         }
@@ -273,4 +227,70 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void processInput(GLFWwindow *window)
 {
 
+}
+
+std::vector<std::vector<float>> generateWorldVertices(int width, int height, int seed) {
+    // VORONOI STUFF
+    const int macroWidth = 20;
+    const int macroHeight = 12;
+    const int minPoints = 2;
+    const int maxPoints = 3;
+    VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
+    generateVoronoiCells(grid, seed, minPoints, maxPoints);
+    //printVoronoiGrid(grid);
+
+    // Get a list of all bitmasks
+    std::vector<VoronoiBitmask> bitmasks;
+    bitmasks.reserve(grid.numFeaturePoints);
+    for (int i  = 0; i < grid.numFeaturePoints; i++) {
+        VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
+        bitmasks.push_back(currentBitmask);
+        /*if (i == 235) {
+            printBitmask(currentBitmask, i);
+        }*/ // This is a bugged cell on seed 145134800
+    }
+    std::cout << "Bitmask data complete\n";
+
+    // Get a list of all vertex positions for each voronoi cell
+    std::vector<std::vector<float>> cellsVertices;
+    cellsVertices.reserve(grid.numFeaturePoints);
+    for (int i = 0; i < bitmasks.size(); i++) {
+        VoronoiBitmask& currentBitmask = bitmasks[i];
+        std::vector<float> currentEdgeVertices = getEdgeVertices(currentBitmask);
+        std::vector<float> currentFanVertices = getCenterVertex(currentBitmask,
+            currentEdgeVertices);
+        cellsVertices.push_back(currentFanVertices);
+    }
+
+    // Get color data for each vertex
+    std::mt19937 colorGenerator(seed);
+    std::uniform_real_distribution<float> randomRed(0.1f, 1.0f);
+    std::uniform_real_distribution<float> randomGreen(0.1f, 1.0f);
+    std::uniform_real_distribution<float> randomBlue(0.1f, 1.0f);
+    std::vector<std::vector<float>> vertexColors;
+    vertexColors.reserve(grid.numFeaturePoints * 3);
+    for (int i = 0; i < grid.numFeaturePoints; i++) {
+        float red = randomRed(colorGenerator);
+        float green = randomGreen(colorGenerator);
+        float blue = randomBlue(colorGenerator);
+        std::vector<float> currentColor = {red, green, blue};
+        vertexColors.push_back(currentColor);
+    }
+
+    // Add color data to position data
+    for (int i = 0; i < cellsVertices.size(); i++) {
+        std::vector<float> currentColor = vertexColors[i];
+        for (int j = 3; j < cellsVertices[i].size(); j += 3) {
+            cellsVertices[i].insert(cellsVertices[i].begin() + j, currentColor[0]);
+            cellsVertices[i].insert(cellsVertices[i].begin() + j + 1, currentColor[1]);
+            cellsVertices[i].insert(cellsVertices[i].begin() + j + 2, currentColor[2]);
+            j += 3;
+        }
+        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[0]);
+        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[1]);
+        cellsVertices[i].insert(cellsVertices[i].end(), currentColor[2]);
+    }
+    std::cout << "Vertex data complete\n";
+
+    return cellsVertices;
 }
