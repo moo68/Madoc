@@ -41,6 +41,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     Direction currentDirection = NORTH;
     Direction edgeDirection = NORTH;
     int nextCell = moveAcrossBitmask(bitmask, currentCell, currentDirection);
+    /*if (nextCell < 0) {
+        nextCell = moveAcrossBitmask(bitmask, currentCell, EAST);
+    }*/
 
     // While the cell's edges haven't been fully traversed
     while (nextCell != startingCell) {
@@ -49,6 +52,13 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
             if (currentDirection != NORTHEAST) {
                 currentDirection = static_cast<Direction>(currentDirection + 1);
                 nextCell = moveAcrossBitmask(bitmask, currentCell, currentDirection);
+
+                /*if (nextCell < 0) {
+                    nextCell = moveAcrossBitmask(bitmask, currentCell, EAST);
+                }
+                else if (nextCell > bitmask.width * bitmask.height) {
+                    nextCell = moveAcrossBitmask(bitmask, currentCell, WEST);
+                }*/
             }
             else {
                 currentDirection = EAST;

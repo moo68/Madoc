@@ -155,13 +155,13 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     bitmask.height = maskHeight;
     bitmask.xOffset = startingX;
     bitmask.yOffset = startingY;
-    bitmask.mask.resize(maskWidth * maskHeight, false);
+    bitmask.mask.resize((maskWidth + 2) * (maskHeight + 2), false);
 
     // Iterate through the inputGrid to fill the bitmask
     for (int y = startingY; y <= endingY; y++) {
         for (int x = startingX; x <= endingX; x++) {
             int currentCell = (y * inputGrid.width) + x;
-            int currentBitmaskCell = ((y - startingY) * maskWidth) + (x - startingX);
+            int currentBitmaskCell = ((y - startingY + 1) * maskWidth) + (x - startingX + 1);
             if (inputGrid.cells[currentCell] == voronoiID) {
                 bitmask.mask[currentBitmaskCell] = true;
             }
