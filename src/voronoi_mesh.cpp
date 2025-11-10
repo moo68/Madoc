@@ -4,8 +4,8 @@
 
 
 int getStartingCell(const VoronoiBitmask &bitmask) {
-    for (int y = 0; y < bitmask.height; y++) {
-        for (int x = 0; x < bitmask.width; x++) {
+    for (int y = 1; y < bitmask.height; y++) {
+        for (int x = 1; x < bitmask.width; x++) {
             int currentCell = (y * bitmask.width) + x;
 
             // If the starting cell has at least one neighbor, it's valid
@@ -22,19 +22,30 @@ int getStartingCell(const VoronoiBitmask &bitmask) {
         }
     }
 
-    return 0;
+    return -1;
 }
+
+bool isValidCell(int cell, int totalCells) {
+    return (cell >= 0 && cell < totalCells);
+}
+
 
 std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     std::vector<float> edgeVertices;
     // TODO: Reserve some amount for edgeVertices
 
     const int startingCell = getStartingCell(bitmask);
+    // Check if no valid cell is found
+    if (startingCell < 0) {
+        return edgeVertices;
+    }
+
+    const int totalCells = bitmask.width * bitmask.height;
     const int startingX = startingCell % bitmask.width;
     const int startingY = startingCell / bitmask.width;
-    std::vector<float> startingCoord = {static_cast<float>(startingX) +
+    std::vector<float> startingCoord = {static_cast<float>(startingX - 1) +
         static_cast<float>(bitmask.xOffset) + 0.5f,
-        (static_cast<float>(startingY) + static_cast<float>(bitmask.yOffset) + 0.5f) * -1, 0.0f};
+        (static_cast<float>(startingY - 1) + static_cast<float>(bitmask.yOffset) + 0.5f) * -1, 0.0f};
     edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
 
     int currentCell = startingCell;
@@ -46,8 +57,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     }*/
 
     // While the cell's edges haven't been fully traversed
-    while (nextCell != startingCell) {
+    while (isValidCell(currentCell, totalCells) && nextCell != startingCell) {
         // If the next cell we look at is empty, check the next clockwise cell
+        //std::cout << "Accessing cell " << nextCell << "\n";
         if (!bitmask.mask[nextCell]) {
             if (currentDirection != NORTHEAST) {
                 currentDirection = static_cast<Direction>(currentDirection + 1);
@@ -84,9 +96,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
             if (newEdgeDirection != edgeDirection && currentCell != startingCell) {
                 int currentX = currentCell % bitmask.width;
                 int currentY = currentCell / bitmask.width;
-                std::vector<float> currentVertex = {static_cast<float>(currentX) +
+                std::vector<float> currentVertex = {static_cast<float>(currentX - 1) +
                     static_cast<float>(bitmask.xOffset) + 0.5f,
-                    (static_cast<float>(currentY) + static_cast<float>(bitmask.yOffset)
+                    (static_cast<float>(currentY - 1) + static_cast<float>(bitmask.yOffset)
                     + 0.5f) * -1, 0.0f};
                 edgeVertices.insert(edgeVertices.end(), currentVertex.begin(), currentVertex.end());
             }
@@ -101,9 +113,9 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     // Add the final vertex coordinate
     int finalX = currentCell % bitmask.width;
     int finalY = currentCell / bitmask.width;
-    std::vector<float> finalVertex = {static_cast<float>(finalX) +
+    std::vector<float> finalVertex = {static_cast<float>(finalX - 1) +
         static_cast<float>(bitmask.xOffset) + 0.5f,
-        (static_cast<float>(finalY) + static_cast<float>(bitmask.yOffset) + 0.5f) * -1, 0.0f};
+        (static_cast<float>(finalY - 1) + static_cast<float>(bitmask.yOffset) + 0.5f) * -1, 0.0f};
     edgeVertices.insert(edgeVertices.end(), finalVertex.begin(), finalVertex.end());
 
     edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());

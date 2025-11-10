@@ -140,6 +140,7 @@ int main() {
         // Generate a new world every few seconds
         if (currentTime - lastSeedTime >= seedInterval) {
             seed = randomSeed(seedGenerator);
+            //seed = 950170390; // BUGGED!
             std::cout << "Current Seed: " << seed << "\n";
 
             auto start = std::chrono::high_resolution_clock::now();
@@ -248,7 +249,7 @@ std::vector<std::vector<float>> generateWorldVertices(int width, int height, int
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    //printVoronoiGrid(grid);
+    printVoronoiGrid(grid);
 
     // Get a list of all bitmasks
     std::vector<VoronoiBitmask> bitmasks;
@@ -256,7 +257,7 @@ std::vector<std::vector<float>> generateWorldVertices(int width, int height, int
     for (int i  = 0; i < grid.numFeaturePoints; i++) {
         VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
         bitmasks.push_back(currentBitmask);
-        if (i == 77) {
+        if (i == 22) {
             printBitmask(currentBitmask, i);
         }
     }
