@@ -10,11 +10,9 @@ See /external for the different external libraries vendored in, such as GLAD and
 - OpenGL boilerplate [DONE]
 - Voronoi cell generation logic [DONE]
 - Bitmask logic for a specific Voronoi cell [DONE]
-- Converting Voronoi cells into veritces [DONE]*
+- Converting Voronoi cells into veritces [DONE]
 - Triangularizing Voronoi cells (triangle fan) [DONE]
 - Properly rendering a full grid of Voronoi cells [DONE]
-- Triangularizing Voronoi cells (ear clipping)
+- Triangularizing Voronoi cells (ear clipping) [IN PROGRESS]
 - Changing Voronoi cell attributes based on Perlin noise
-- ...and more
-
-*Currently, sometimes garbage data randomly gets read for some vertices; should hopefully get fixed soon!
+- ...and more?
