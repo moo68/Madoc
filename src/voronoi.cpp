@@ -146,7 +146,12 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     int endingY = ((macroY + 1) * inputGrid.macroHeight)
         + inputGrid.macroHeight - 1;
     if (endingX > inputGrid.width - 1) { endingX = inputGrid.width - 1; }
-    if (endingY > inputGrid.height - 1) { endingY = inputGrid.height - 1; }
+
+    bool yCorrection = false;
+    if (endingY > inputGrid.height - 1) {
+        endingY = inputGrid.height - 1;
+        yCorrection = true;
+    }
 
     // Interior dimensions (actual cells we want to copy)
     int interiorWidth = (endingX - startingX) + 1;
@@ -167,15 +172,15 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     for (int y = startingY; y <= endingY; y++) {
         for (int x = startingX; x <= endingX; x++) {
             int currentCell = (y * inputGrid.width) + x;
-            int bitmaskX = x - startingX;
-            int bitmaskY = y - startingY;
-            int currentBitmaskCell = ((bitmaskY + 1) * interiorWidth) + (bitmaskX + 1);
+            int bitmaskX = x - startingX + 0;
+            int bitmaskY = y - startingY + 1;
+            /*if (yCorrection) {
+                bitmaskY -= 1;
+            }*/
+            int currentBitmaskCell = ((bitmaskY + 0) * interiorWidth) + (bitmaskX + 0);
 
             if (inputGrid.cells[currentCell] == voronoiID) {
                 bitmask.mask[currentBitmaskCell] = true;
-            }
-            else {
-                bitmask.mask[currentBitmaskCell] = false;
             }
         }
     }

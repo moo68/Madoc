@@ -57,7 +57,8 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     }*/
 
     // While the cell's edges haven't been fully traversed
-    while (isValidCell(currentCell, totalCells) && nextCell != startingCell) {
+    while (isValidCell(currentCell, totalCells) &&
+        isValidCell(nextCell, totalCells) && nextCell != startingCell) {
         // If the next cell we look at is empty, check the next clockwise cell
         //std::cout << "Accessing cell " << nextCell << "\n";
         if (!bitmask.mask[nextCell]) {

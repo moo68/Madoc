@@ -257,7 +257,7 @@ std::vector<std::vector<float>> generateWorldVertices(int width, int height, int
     for (int i  = 0; i < grid.numFeaturePoints; i++) {
         VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
         bitmasks.push_back(currentBitmask);
-        if (i == 22) {
+        if (i == 1) {
             printBitmask(currentBitmask, i);
         }
     }
