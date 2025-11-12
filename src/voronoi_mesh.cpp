@@ -52,26 +52,15 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     Direction currentDirection = NORTH;
     Direction edgeDirection = NORTH;
     int nextCell = moveAcrossBitmask(bitmask, currentCell, currentDirection);
-    /*if (nextCell < 0) {
-        nextCell = moveAcrossBitmask(bitmask, currentCell, EAST);
-    }*/
 
     // While the cell's edges haven't been fully traversed
     while (isValidCell(currentCell, totalCells) &&
         isValidCell(nextCell, totalCells) && nextCell != startingCell) {
         // If the next cell we look at is empty, check the next clockwise cell
-        //std::cout << "Accessing cell " << nextCell << "\n";
         if (!bitmask.mask[nextCell]) {
             if (currentDirection != NORTHEAST) {
                 currentDirection = static_cast<Direction>(currentDirection + 1);
                 nextCell = moveAcrossBitmask(bitmask, currentCell, currentDirection);
-
-                /*if (nextCell < 0) {
-                    nextCell = moveAcrossBitmask(bitmask, currentCell, EAST);
-                }
-                else if (nextCell > bitmask.width * bitmask.height) {
-                    nextCell = moveAcrossBitmask(bitmask, currentCell, WEST);
-                }*/
             }
             else {
                 currentDirection = EAST;
@@ -120,9 +109,6 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     edgeVertices.insert(edgeVertices.end(), finalVertex.begin(), finalVertex.end());
 
     edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
-    /*for (int i = 0; i < edgeVertices.size(); i += 3) {
-        std::cout << "(" << edgeVertices[i] << "," << edgeVertices[i + 1] << "," << edgeVertices[i + 2] << ")\n";
-    }*/
 
     return edgeVertices;
 }
@@ -140,8 +126,7 @@ std::vector<float> getCenterVertex(const VoronoiBitmask &bitmask, std::vector<fl
     centerX += 0.5f;
     centerY += 0.5f;
     std::vector<float> completeVertices = {centerX, centerY, 0.0f};
-    //std::cout << "Bitmask offsets: " << bitmask.xOffset << ", " << bitmask.yOffset << "\n";
-    //std::cout << "Centroid coords: " << completeVertices[0] << ", " << completeVertices[1] << "\n";
+
     completeVertices.insert(completeVertices.end(), vertices.begin(), vertices.end());
 
     return completeVertices;
