@@ -76,7 +76,6 @@ int main() {
         logError("shader_utils", error.what());
         return -1;
     }
-    std::cout << fragment;
     const char* vertexShaderSource = vertex.c_str();
     const char* fragmentShaderSource = fragment.c_str();
     // Set up the shader program
@@ -125,7 +124,7 @@ int main() {
 
 
     // THE RENDER LOOP
-    std::cout << "Entering render loop\n";
+    std::cout << "Entering render loop\n\n";
 
     std::mt19937 seedGenerator(314159265);
     std::uniform_int_distribution<int> randomSeed(0, 999999999);
@@ -148,12 +147,11 @@ int main() {
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
-            std::cout << "Generation took " << diff << "s\n";
+            std::cout << "Generation took " << diff << "s\n\n";
 
             lastSeedTime = currentTime;
         }
 
-        //glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Set projection matrices
@@ -248,7 +246,6 @@ std::vector<std::vector<float>> generateWorldVertices(int width, int height, int
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
-    //printVoronoiGrid(grid);
 
     // Get a list of all bitmasks
     std::vector<VoronoiBitmask> bitmasks;

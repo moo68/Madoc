@@ -135,6 +135,7 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     int macroX = featureX / inputGrid.macroWidth;
     int macroY = featureY / inputGrid.macroHeight;
 
+    // startingX/Y and endingX/Y are voronoiGrid coords, not bitmask
     int startingX = (macroX - 1) * inputGrid.macroWidth;
     int startingY = (macroY - 1) * inputGrid.macroHeight;
     if (startingX < 0) { startingX = 0; }
@@ -147,26 +148,31 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
     if (endingX > inputGrid.width - 1) { endingX = inputGrid.width - 1; }
     if (endingY > inputGrid.height - 1) { endingY = inputGrid.height - 1; }
 
-    int maskWidth = (endingX - startingX) + 1;
-    int maskHeight = (endingY - startingY) + 1;
+    // Interior dimensions (actual cells we want to copy)
+    int interiorWidth = (endingX - startingX) + 1;
+    int interiorHeight = (endingY - startingY) + 1;
+
+    // Padded dimensions (+1 border each side)
+    int paddedWidth = interiorWidth + 2;
+    int paddedHeight = interiorHeight + 2;
 
     VoronoiBitmask bitmask;
-    bitmask.width = maskWidth;
-    bitmask.height = maskHeight;
+    bitmask.width = paddedWidth;
+    bitmask.height = paddedHeight;
     bitmask.xOffset = startingX;
     bitmask.yOffset = startingY;
-    bitmask.mask.resize(maskWidth * maskHeight, false);
+    bitmask.mask.resize(paddedWidth * paddedHeight, false);
 
     // Iterate through the inputGrid to fill the bitmask
     for (int y = startingY; y <= endingY; y++) {
         for (int x = startingX; x <= endingX; x++) {
             int currentCell = (y * inputGrid.width) + x;
-            int currentBitmaskCell = ((y - startingY) * maskWidth) + (x - startingX);
+            int bitmaskX = x - startingX;
+            int bitmaskY = y - startingY;
+            int currentBitmaskCell = ((bitmaskY + 1) * (interiorWidth + 2)) + (bitmaskX + 1);
+
             if (inputGrid.cells[currentCell] == voronoiID) {
                 bitmask.mask[currentBitmaskCell] = true;
-            }
-            else {
-                bitmask.mask[currentBitmaskCell] = false;
             }
         }
     }
@@ -177,7 +183,7 @@ VoronoiBitmask generateVoronoiBitmask(const VoronoiGrid& inputGrid, const u_int1
 void printVoronoiGrid(const VoronoiGrid& inputGrid) {
     for (int y = 0; y < inputGrid.height; y++) {
         for (int x = 0; x < inputGrid.width; x++) {
-            std::cout << std::setw(2) << inputGrid.cells[(y * inputGrid.width) + x] << " ";
+            std::cout << std::setw(3) << inputGrid.cells[(y * inputGrid.width) + x] << " ";
         }
         std::cout << "\n";
     }
@@ -185,11 +191,12 @@ void printVoronoiGrid(const VoronoiGrid& inputGrid) {
     std::cout << std::endl;
 }
 
+// Currently doesn't pass memory sanitizer--that's fine
 void printBitmask(const VoronoiBitmask& inputGrid, const u_int16_t voronoiID) {
     std::cout << "Voronoi cell " << voronoiID << ":\n";
-    for (int y = 0; y < inputGrid.height; y++) {
-        for (int x = 0; x < inputGrid.width; x++) {
-            std::cout << inputGrid.mask[(y * inputGrid.width) + x] << " ";
+    for (int y = 0; y < inputGrid.height + 2; y++) {
+        for (int x = 0; x < inputGrid.width + 2; x++) {
+            std::cout << inputGrid.mask[(y * (inputGrid.width + 2)) + x] << " ";
         }
         std::cout << "\n";
     }
