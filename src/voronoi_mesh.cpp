@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #include <madoc/voronoi_mesh.h>
 
@@ -130,6 +131,10 @@ std::vector<float> getCenterVertex(const VoronoiBitmask &bitmask, std::vector<fl
     completeVertices.insert(completeVertices.end(), vertices.begin(), vertices.end());
 
     return completeVertices;
+}
+
+std::vector<unsigned int> getEarClippedIndices(std::vector<float>& vertices) {
+    std::vector<unsigned int> indices;
 }
 
 int moveAcrossBitmask(const VoronoiBitmask &bitmask, int currentCell, Direction direction) {

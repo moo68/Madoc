@@ -39,6 +39,12 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask& bitmask);
 std::vector<float> getCenterVertex(const VoronoiBitmask& bitmask, std::vector<float>& vertices);
 
 /*
+ * Perform an ear-clipping algorithm to a list of edge-vertices. Return a list
+ * of properly triangulated vertices
+ */
+std::vector<unsigned int> getEarClippedIndices(std::vector<float>& vertices);
+
+/*
  * Return the integer of the cell that was moved to based on the current cell and
  * the direction of movement
  */
