@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include <madoc/voronoi.h>
 
 
@@ -42,7 +44,7 @@ std::vector<float> getCenterVertex(const VoronoiBitmask& bitmask, std::vector<fl
  * Perform an ear-clipping algorithm to a list of edge-vertices. Return a list
  * of properly triangulated vertices
  */
-std::vector<unsigned int> getEarClippedIndices(std::vector<float>& vertices);
+std::vector<unsigned int> getEarClippedIndices(const std::vector<float>& inputVertices);
 
 /*
  * Return the integer of the cell that was moved to based on the current cell and

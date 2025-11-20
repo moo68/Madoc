@@ -133,8 +133,78 @@ std::vector<float> getCenterVertex(const VoronoiBitmask &bitmask, std::vector<fl
     return completeVertices;
 }
 
-std::vector<unsigned int> getEarClippedIndices(std::vector<float>& vertices) {
+std::vector<unsigned int> getEarClippedIndices(const std::vector<float>& inputVertices) {
+    // Make the list of vertices (not just the raw floats that OpenGL uses)
+    std::vector<float> rawVertices = inputVertices;
+    std::vector<glm::vec2> vertices;
+    vertices.resize(rawVertices.size() / 3);
+    for (int i = 0; i < rawVertices.size(); i += 3) {
+        vertices[i / 3] = glm::vec2(rawVertices[i], rawVertices[i + 1]);
+    }
+
+    // Make the list of indices, where each index corresponds to a vertex
     std::vector<unsigned int> indices;
+    indices.resize(vertices.size());
+    for (int i = 0; i < indices.size(); i++) {
+        indices[i] = i;
+    }
+    // Also the final, empty list of indices that will form triangles
+    std::vector<unsigned> triangles;
+
+    // Create the list of booleans that represent convexity of the corresponding vertex
+    std::vector<bool> isConvex;
+    isConvex.resize(vertices.size());
+
+    // Ear clip!
+    while (indices.size() != 3) {
+        // Get whether each vertex is convex or not
+        for (int i = 0; i < indices.size(); i++) {
+            // Get proper wrapping indices
+            int prev = (i - 1 + indices.size()) % indices.size();
+            int next = (i + 1) % indices.size();
+
+            // Get the vectors formed by the 3 vertices
+            glm::vec3 vectorA = {
+                vertices[i].x - vertices[prev].x,
+                vertices[i].y - vertices[prev].y,
+                0.0f
+            };
+            glm::vec3 vectorB = {
+                vertices[next].x - vertices[i].x,
+                vertices[next].y - vertices[i].y,
+                0.0f
+            };
+
+            // Check if the vertex is convex (z < 0 = convex due to CW winding)
+            if (glm::cross(vectorA, vectorB).z < 0) {
+                isConvex[i] = true;
+            }
+            else {
+                isConvex[i] = false;
+            }
+        }
+
+        // Clip the ear if its convex
+        for (int i = 0; i < indices.size(); i++) {
+            int prev = (i - 1 + indices.size()) % indices.size();
+            int next = (i + 1) % indices.size();
+
+            if (isConvex[i]) {
+                triangles.push_back(indices[prev]);
+                triangles.push_back(indices[i]);
+                triangles.push_back(indices[next]);
+
+                indices.erase(indices.begin() + i);
+                //vertices.erase(vertices.begin() + i);
+            }
+        }
+    }
+
+    // Add the final triangle
+    triangles.push_back(indices[0]);
+    triangles.push_back(indices[1]);
+    triangles.push_back(indices[2]);
+    return triangles;
 }
 
 int moveAcrossBitmask(const VoronoiBitmask &bitmask, int currentCell, Direction direction) {
@@ -148,4 +218,21 @@ int moveAcrossBitmask(const VoronoiBitmask &bitmask, int currentCell, Direction 
     if (direction == NORTHEAST) { return (currentCell - bitmask.width + 1); }
 
     return -1;
+}
+
+float Cross(const glm::vec2& p, const glm::vec2& v, const glm::vec2& n)
+{
+    return (v.x - p.x) * (n.y - v.y) - (v.y - p.y) * (n.x - v.x);
+}
+
+bool InTriangle(const glm::vec2& pt, const glm::vec2& a, const glm::vec2& b, const glm::vec2& c)
+{
+    float c1 = Cross(a, b, pt);
+    float c2 = Cross(b, c, pt);
+    float c3 = Cross(c, a, pt);
+
+    bool has_neg = (c1 < 0.f) || (c2 < 0.f) || (c3 < 0.f);
+    bool has_pos = (c1 > 0.f) || (c2 > 0.f) || (c3 > 0.f);
+
+    return !(has_neg && has_pos);
 }
