@@ -28,7 +28,7 @@ target_link_libraries(${PROJECT_NAME} glfw)
 
 file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -g")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -g")
 
 if(APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL")

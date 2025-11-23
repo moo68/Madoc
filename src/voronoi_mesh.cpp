@@ -109,8 +109,6 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
         (static_cast<float>(finalY - 1) + static_cast<float>(bitmask.yOffset) + 0.5f) * -1, 0.0f};
     edgeVertices.insert(edgeVertices.end(), finalVertex.begin(), finalVertex.end());
 
-    edgeVertices.insert(edgeVertices.end(), startingCoord.begin(), startingCoord.end());
-
     return edgeVertices;
 }
 
@@ -153,10 +151,22 @@ std::vector<unsigned int> getEarClippedIndices(const std::vector<float>& inputVe
 
     // Create the list of booleans that represent convexity of the corresponding vertex
     std::vector<bool> isConvex;
-    isConvex.resize(vertices.size());
 
     // Ear clip!
     while (indices.size() != 3) {
+        isConvex.resize(indices.size());
+
+        // Get the winding order of the polygon this iteration
+        float signedArea = 0.0f;
+        for (int i = 0; i < indices.size(); i++) {
+            // Get proper wrapping indices
+            int next = (i + 1) % indices.size();
+
+            // Compute part of the signed area
+            signedArea += (vertices[indices[i]].x * vertices[indices[next]].y) -
+                (vertices[indices[next]].x * vertices[indices[i]].y);
+        }
+
         // Get whether each vertex is convex or not
         for (int i = 0; i < indices.size(); i++) {
             // Get proper wrapping indices
@@ -165,18 +175,21 @@ std::vector<unsigned int> getEarClippedIndices(const std::vector<float>& inputVe
 
             // Get the vectors formed by the 3 vertices
             glm::vec3 vectorA = {
-                vertices[i].x - vertices[prev].x,
-                vertices[i].y - vertices[prev].y,
+                vertices[indices[i]].x - vertices[indices[prev]].x,
+                vertices[indices[i]].y - vertices[indices[prev]].y,
                 0.0f
             };
             glm::vec3 vectorB = {
-                vertices[next].x - vertices[i].x,
-                vertices[next].y - vertices[i].y,
+                vertices[indices[next]].x - vertices[indices[i]].x,
+                vertices[indices[next]].y - vertices[indices[i]].y,
                 0.0f
             };
 
-            // Check if the vertex is convex (z < 0 = convex due to CW winding)
-            if (glm::cross(vectorA, vectorB).z < 0) {
+            // Check if the vertex is convex
+            if (signedArea < 0 && glm::cross(vectorA, vectorB).z < 0) {
+                isConvex[i] = true;
+            }
+            else if (signedArea > 0 && glm::cross(vectorA, vectorB).z > 0) {
                 isConvex[i] = true;
             }
             else {
@@ -195,8 +208,27 @@ std::vector<unsigned int> getEarClippedIndices(const std::vector<float>& inputVe
                 triangles.push_back(indices[next]);
 
                 indices.erase(indices.begin() + i);
-                //vertices.erase(vertices.begin() + i);
+                break;
             }
+        }
+
+        bool anyConvex = false;
+        for (int i = 0; i < isConvex.size(); i++) {
+            if (isConvex[i]) {
+                anyConvex = true;
+            }
+        }
+
+        // If the remaining points won't work for ear-clipping, just manually
+        // connect them into triangles
+        if (!anyConvex) {
+            for (int i = 0; i < indices.size() - 2; i++) {
+                triangles.push_back(indices[i]);
+                triangles.push_back(indices[i + 1]);
+                triangles.push_back(indices[i + 2]);
+            }
+
+            return triangles;
         }
     }
 
