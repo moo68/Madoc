@@ -13,6 +13,8 @@ See /external for the different external libraries vendored in, such as GLAD and
 - Converting Voronoi cells into veritces [DONE]
 - Triangularizing Voronoi cells (triangle fan) [DONE]
 - Properly rendering a full grid of Voronoi cells [DONE]
-- Triangularizing Voronoi cells (ear clipping) [IN PROGRESS]
-- Changing Voronoi cell attributes based on Perlin noise
+- Triangularizing Voronoi cells (ear clipping) [DONE]*
+- Changing Voronoi cell attributes based on Perlin noise [IN PROGRESS]
 - ...and more?
+
+*Ear-clipping is currently quite basic and can produce some artifacts, but is good enough for now
