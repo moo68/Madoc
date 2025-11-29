@@ -13,6 +13,8 @@
 #include <madoc/voronoi.h>
 #include <madoc/voronoi_mesh.h>
 
+#include "madoc/perlin_noise.h"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -96,7 +98,7 @@ int main() {
     // WORLD GENERATION
     int width = 1000;
     int height = 600;
-    int seed = 145134800;
+    int seed = 72433399;
 
     // VORONOI STUFF
     const int macroWidth = 20;
@@ -105,6 +107,10 @@ int main() {
     const int maxPoints = 3;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
+
+    // PERLIN STUFF
+    std::array<glm::vec2, 32> gradientVectors = generateGradients();
+    std::array<int, 512> permutationTable = generatePermutationTable(seed);
 
     // Get a list of all bitmasks
     std::vector<VoronoiBitmask> bitmasks;
@@ -121,7 +127,7 @@ int main() {
     unsigned int numPreviousIndices = 0;
 
     // Generate color data for each vertex
-    std::mt19937 colorGenerator(seed);
+    /*std::mt19937 colorGenerator(seed);
     std::uniform_real_distribution<float> randomRed(0.1f, 1.0f);
     std::uniform_real_distribution<float> randomGreen(0.1f, 1.0f);
     std::uniform_real_distribution<float> randomBlue(0.1f, 1.0f);
@@ -134,7 +140,7 @@ int main() {
         float blue = randomBlue(colorGenerator);
         std::vector<float> currentColor = {red, green, blue};
         vertexColors.push_back(currentColor);
-    }
+    }*/
 
     // For each bitmask, get the vertex and index data for that polygon
     for (int i = 0; i < bitmasks.size(); i++) {
@@ -148,7 +154,12 @@ int main() {
         }
         numPreviousIndices += currentVertices.size() / 3;
 
-        std::vector<float>& currentColor = vertexColors[i];
+        std::vector<float> centroid = getCenterVertex(currentVertices);
+        float perlinSample = samplePerlin(permutationTable, gradientVectors, centroid[0], centroid[1]);
+        float normalizedSample = (perlinSample + 1) / 2;
+        float colorValue = normalizedSample * 255.0f;
+        std::vector<float> currentColor = {colorValue, colorValue, colorValue};
+        //std::vector<float> currentColor = {25.0f, 25.0f, 25.0f};
         for (int j = 3; j < currentVertices.size(); j += 6) {
             currentVertices.insert(currentVertices.begin() + j, currentColor[0]);
             currentVertices.insert(currentVertices.begin() + j + 1, currentColor[1]);

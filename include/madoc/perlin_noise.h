@@ -18,7 +18,8 @@ float fade(float t);
 
 float lerp(float a, float b, float t);
 
-float samplePerlin(float x, float z);
+float samplePerlin(std::array<int, 512>& permutationTable,
+                   std::array<glm::vec2, 32>& gradientVectors, float x, float z);
 
 float samplePerlinOctaves(float x, float z, int octaves, float amplitude,
                           float frequency, float persistence, float lacunarity);

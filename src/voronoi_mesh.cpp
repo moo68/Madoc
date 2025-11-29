@@ -112,7 +112,7 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask &bitmask) {
     return edgeVertices;
 }
 
-std::vector<float> getCenterVertex(const VoronoiBitmask &bitmask, std::vector<float>& vertices) {
+std::vector<float> getCenterVertex(std::vector<float>& vertices) {
     float centerX = 0.0f;
     float centerY = 0.0f;
     int numVertices = vertices.size() / 3;

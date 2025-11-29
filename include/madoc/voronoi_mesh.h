@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include <madoc/voronoi.h>
 
 
@@ -36,7 +38,7 @@ std::vector<float> getEdgeVertices(const VoronoiBitmask& bitmask);
  * Get the center of the shape based on its edge vertices and add
  * its center vertex to the beginning of its list of vertices
  */
-std::vector<float> getCenterVertex(const VoronoiBitmask& bitmask, std::vector<float>& vertices);
+std::vector<float> getCenterVertex(std::vector<float>& vertices);
 
 /*
  * Perform an ear-clipping algorithm to a list of edge-vertices. Return a list

@@ -9,8 +9,7 @@ std::array<glm::vec2, 32> generateGradients() {
 
     // Generate a list of 32 gradient unit vectors for our perlin nosie
     // These are all evenly spaced around a unit circle
-    for (int i = 0; i < 32; i++)
-    {
+    for (int i = 0; i < 32; i++) {
         float angle = ((2.0f * glm::pi<float>()) / 32.0f) * i;
         gradientVectors[i] = {cos(angle), sin(angle)};
     }
@@ -53,7 +52,8 @@ float lerp(float a, float b, float t) {
     return a + t * (b - a);
 }
 
-float samplePerlin(float x, float z) {
+float samplePerlin(std::array<int, 512>& permutationTable,
+                   std::array<glm::vec2, 32>& gradientVectors, float x, float z) {
     // Get the bottom left corner of the cell that the sampled point is in
     int xCell = static_cast<int>(std::floor(x));
     int zCell = static_cast<int>(std::floor(z));
@@ -73,30 +73,32 @@ float samplePerlin(float x, float z) {
     float zFade = fade(zSample);
 
     // Compute influence of each gradient vector via dot product
-    float x0z0Influence = dotGridGradient(xSample, zSample, x0, z0);
-    float x1z0Influence = dotGridGradient(xSample - 1, zSample, x1, z0);
-    float x0z1Influence = dotGridGradient(xSample, zSample - 1, x0, z1);
-    float x1z1Influence = dotGridGradient(xSample - 1, zSample - 1, x1, z1);
+    float x0z0Influence = dotGridGradient(permutationTable, gradientVectors, xSample, zSample, x0, z0);
+    float x1z0Influence = dotGridGradient(permutationTable, gradientVectors, xSample - 1, zSample, x1, z0);
+    float x0z1Influence = dotGridGradient(permutationTable, gradientVectors, xSample, zSample - 1, x0, z1);
+    float x1z1Influence = dotGridGradient(permutationTable, gradientVectors, xSample - 1, zSample - 1, x1, z1);
 
     // Interpolate to get the total near edge and total far edge influence
     float z0Influence = lerp(x0z0Influence, x1z0Influence, xFade);
     float z1Influence = lerp(x0z1Influence, x1z1Influence, xFade);
 
     // Interpolate the near and far edges of the grid cell
-    // This the the final output of the noise function
+    // This is the final output of the noise function
     float finalInfluence = lerp(z0Influence, z1Influence, zFade);
 
     return finalInfluence; // NOTE: This is a value between -1 and 1
 }
 
-float samplePerlinOctaves(float x, float z, int octaves, float amplitude,
-                          float frequency, float persistence, float lacunarity) {
+float samplePerlinOctaves(std::array<int, 512>& permutationTable,
+                          std::array<glm::vec2, 32>& gradientVectors, float x,
+                          float z, int octaves, float amplitude, float frequency,
+                          float persistence, float lacunarity) {
     float finalAmplitude = 0.0f;
     float finalSample = 0.0f;
 
-    for (int i = 0; i < octaves; i++)
-    {
-        float perlinSample = samplePerlin(x * frequency, z * frequency);
+    for (int i = 0; i < octaves; i++) {
+        float perlinSample = samplePerlin(permutationTable, gradientVectors,
+                                          x * frequency, z * frequency);
         finalSample += perlinSample * amplitude;
 
         finalAmplitude += amplitude;
