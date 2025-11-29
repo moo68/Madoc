@@ -16,7 +16,9 @@ set(SOURCES ${CMAKE_SOURCE_DIR}/external/glad/src/glad.c
         src/voronoi.cpp
         include/madoc/voronoi.h
         src/voronoi_mesh.cpp
-        include/madoc/voronoi_mesh.h)
+        include/madoc/voronoi_mesh.h
+        include/madoc/perlin_noise.h
+        src/perlin_noise.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

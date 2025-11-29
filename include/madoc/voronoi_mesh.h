@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include <madoc/voronoi.h>
 
 

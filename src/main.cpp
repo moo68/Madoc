@@ -153,7 +153,6 @@ int main() {
             currentVertices.insert(currentVertices.begin() + j, currentColor[0]);
             currentVertices.insert(currentVertices.begin() + j + 1, currentColor[1]);
             currentVertices.insert(currentVertices.begin() + j + 2, currentColor[2]);
-            //j += 3;
         }
         currentVertices.insert(currentVertices.end(), currentColor[0]);
         currentVertices.insert(currentVertices.end(), currentColor[1]);
