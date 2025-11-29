@@ -98,7 +98,7 @@ int main() {
     // WORLD GENERATION
     int width = 1000;
     int height = 600;
-    int seed = 72433399;
+    int seed = 314159265;
 
     // VORONOI STUFF
     const int macroWidth = 20;
@@ -126,22 +126,6 @@ int main() {
     std::vector<unsigned int> indices;
     unsigned int numPreviousIndices = 0;
 
-    // Generate color data for each vertex
-    /*std::mt19937 colorGenerator(seed);
-    std::uniform_real_distribution<float> randomRed(0.1f, 1.0f);
-    std::uniform_real_distribution<float> randomGreen(0.1f, 1.0f);
-    std::uniform_real_distribution<float> randomBlue(0.1f, 1.0f);
-    // TODO: Store colors as glm::vec3 to be more readable?
-    std::vector<std::vector<float>> vertexColors;
-    vertexColors.reserve(grid.numFeaturePoints * 3);
-    for (int i = 0; i < grid.numFeaturePoints; i++) {
-        float red = randomRed(colorGenerator);
-        float green = randomGreen(colorGenerator);
-        float blue = randomBlue(colorGenerator);
-        std::vector<float> currentColor = {red, green, blue};
-        vertexColors.push_back(currentColor);
-    }*/
-
     // For each bitmask, get the vertex and index data for that polygon
     for (int i = 0; i < bitmasks.size(); i++) {
         VoronoiBitmask& currentBitmask = bitmasks[i];
@@ -154,12 +138,17 @@ int main() {
         }
         numPreviousIndices += currentVertices.size() / 3;
 
+        // Get the centroid coordinate of each polygon, and plug it into the
+        // Perlin noise function to get its color value
         std::vector<float> centroid = getCenterVertex(currentVertices);
-        float perlinSample = samplePerlin(permutationTable, gradientVectors, centroid[0], centroid[1]);
+        float perlinSample = samplePerlinOctaves(permutationTable, gradientVectors,
+                                                 centroid[0], centroid[1], 4, 1.0f,
+                                                 0.01f, 0.5f, 2.0f);
         float normalizedSample = (perlinSample + 1) / 2;
-        float colorValue = normalizedSample * 255.0f;
+        float colorValue = normalizedSample;
         std::vector<float> currentColor = {colorValue, colorValue, colorValue};
-        //std::vector<float> currentColor = {25.0f, 25.0f, 25.0f};
+
+        // Add the generated color value to the list of vertex data
         for (int j = 3; j < currentVertices.size(); j += 6) {
             currentVertices.insert(currentVertices.begin() + j, currentColor[0]);
             currentVertices.insert(currentVertices.begin() + j + 1, currentColor[1]);
