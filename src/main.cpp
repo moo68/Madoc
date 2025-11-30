@@ -142,13 +142,7 @@ int main() {
         // Get the centroid coordinate of each polygon, and plug it into the
         // Perlin noise function to get its color value
         std::vector<float> centroid = getCenterVertex(currentVertices);
-        float perlinSample = samplePerlinOctaves(permutationTable, gradientVectors,
-                                                 centroid[0], centroid[1], 4, 1.0f,
-                                                 0.01f, 0.5f, 2.0f);
-        float normalizedSample = (perlinSample + 1) / 2;
-        //float colorValue = normalizedSample;
-        float colorValue = generateTemperature(centroid[1], height, 1.0);
-        std::vector<float> currentColor = {colorValue, colorValue, colorValue};
+        std::vector<float> currentColor = generateBiomeColor(centroid[0], centroid[1], seed);
 
         // Add the generated color value to the list of vertex data
         for (int j = 3; j < currentVertices.size(); j += 6) {

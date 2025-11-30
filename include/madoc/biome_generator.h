@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <glm/glm.hpp>
+
 
 struct WorldInfo {
     int seed;
@@ -15,6 +17,7 @@ std::vector<float> generateBiomeColor(float x, float y, int seed);
 
 float generateTemperature(float y, float worldHeight, float tempMult);
 
-float generateElevation();
+float generateElevation(std::array<int, 512>& permutationTable,
+                        std::array<glm::vec2, 32>& gradientVectors, float x, float y);
 
 float generatePrecipitation();
