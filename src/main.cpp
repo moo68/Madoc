@@ -16,6 +16,7 @@
 #include "madoc/perlin_noise.h"
 
 
+void generateWorld(int seed);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);
@@ -116,6 +117,7 @@ int main() {
         bitmasks.push_back(currentBitmask);
     }
     std::cout << "Bitmask data complete\n";
+
 
     // VERTEX DATA
     std::vector<float> vertices;
@@ -285,4 +287,63 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void processInput(GLFWwindow *window)
 {
 
+}
+
+void generateWorld(int seed, GLuint VBO, GLuint EBO) {
+   // VORONOI STUFF
+    int width = 1000;
+    int height = 600;
+    const int macroWidth = 20;
+    const int macroHeight = 12;
+    const int minPoints = 2;
+    const int maxPoints = 2;
+    VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
+    generateVoronoiCells(grid, seed, minPoints, maxPoints);
+
+    // Get a list of all bitmasks
+    std::vector<VoronoiBitmask> bitmasks;
+    bitmasks.reserve(grid.numFeaturePoints);
+    for (int i  = 0; i < grid.numFeaturePoints; i++) {
+        VoronoiBitmask currentBitmask = generateVoronoiBitmask(grid, i);
+        bitmasks.push_back(currentBitmask);
+    }
+    std::cout << "Bitmask data complete\n";
+
+    // VERTEX DATA
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+    unsigned int numPreviousIndices = 0;
+
+    // For each bitmask, get the vertex and index data for that polygon
+    for (int i = 0; i < bitmasks.size(); i++) {
+        VoronoiBitmask& currentBitmask = bitmasks[i];
+        std::vector<float> currentVertices = getEdgeVertices(currentBitmask);
+        std::vector<unsigned int> currentIndices = getEarClippedIndices(currentVertices);
+        if (numPreviousIndices != 0) {
+            for (int j = 0; j < currentIndices.size(); j++) {
+                currentIndices[j] += numPreviousIndices;
+            }
+        }
+        numPreviousIndices += currentVertices.size() / 3;
+
+        // Get the centroid coordinate of each polygon, and plug it into the
+        // Perlin noise function to get its color value
+        std::vector<float> centroid = getCenterVertex(currentVertices);
+        std::vector<float> currentColor = generateBiomeColor(centroid[0], centroid[1], seed);
+        std::cout << "Biome generation complete\n";
+
+        // Add the generated color value to the list of vertex data
+        for (int j = 3; j < currentVertices.size(); j += 6) {
+            currentVertices.insert(currentVertices.begin() + j, currentColor[0]);
+            currentVertices.insert(currentVertices.begin() + j + 1, currentColor[1]);
+            currentVertices.insert(currentVertices.begin() + j + 2, currentColor[2]);
+        }
+        currentVertices.insert(currentVertices.end(), currentColor[0]);
+        currentVertices.insert(currentVertices.end(), currentColor[1]);
+        currentVertices.insert(currentVertices.end(), currentColor[2]);
+
+        vertices.insert(vertices.end(), currentVertices.begin(), currentVertices.end());
+        indices.insert(indices.end(), currentIndices.begin(), currentIndices.end());
+    }
+    std::cout << "Vertex data complete\n";
 }
