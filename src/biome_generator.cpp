@@ -10,13 +10,36 @@ std::vector<float> generateBiomeColor(float x, float y, int seed) {
     float temperature = generateTemperature(y, worldHeight, 1.0f);
     float elevation = generateElevation(permutationTable, gradientVectors, x, y);
 
-    // Land
+    // Impassible mountain
+    if (elevation >= 0.67) {
+        return {0.392f, 0.392f, 0.392f};
+    }
+    // Mountain
+    if (elevation >= 0.62f) {
+        return {0.588f, 0.588f, 0.588f};
+    }
+    // Lower land
     if (elevation >= 0.50f) {
         // Arctic
         if (temperature <= 0.10f) {
             return {0.921f, 0.921f, 0.921f};
         }
-        return {0.392f, 0.784f, 0.392f};
+        // Tundra
+        if (temperature <= 0.25f) {
+            return {0.0f, 0.392f, 0.0f};
+        }
+        // Forest
+        if (temperature <= 0.75f) {
+            return {0.0f, 0.784f, 0.0f};
+        }
+        // Savannah
+        if (temperature <= 0.90f) {
+            return {0.784f, 0.725f, 0.0f};
+        }
+        // Desert
+        else {
+            return {1.0f, 0.784f, 0.0f};
+        }
     }
 
     // Shallow Sea

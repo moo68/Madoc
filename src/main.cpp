@@ -99,7 +99,7 @@ int main() {
     // WORLD GENERATION
     int width = 1000;
     int height = 600;
-    int seed = 314159265;
+    int seed = 974924325;
 
     // VORONOI STUFF
     const int macroWidth = 20;
