@@ -13,6 +13,7 @@
 #include <madoc/voronoi.h>
 #include <madoc/voronoi_mesh.h>
 
+#include "madoc/biome_generator.h"
 #include "madoc/perlin_noise.h"
 
 
@@ -145,7 +146,8 @@ int main() {
                                                  centroid[0], centroid[1], 4, 1.0f,
                                                  0.01f, 0.5f, 2.0f);
         float normalizedSample = (perlinSample + 1) / 2;
-        float colorValue = normalizedSample;
+        //float colorValue = normalizedSample;
+        float colorValue = generateTemperature(centroid[1], height, 1.0);
         std::vector<float> currentColor = {colorValue, colorValue, colorValue};
 
         // Add the generated color value to the list of vertex data
