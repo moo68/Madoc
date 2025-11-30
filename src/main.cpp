@@ -12,7 +12,6 @@
 #include <madoc/log_utils.h>
 #include <madoc/voronoi.h>
 #include <madoc/voronoi_mesh.h>
-
 #include "madoc/biome_generator.h"
 #include "madoc/perlin_noise.h"
 
@@ -99,19 +98,15 @@ int main() {
     // WORLD GENERATION
     int width = 1000;
     int height = 600;
-    int seed = 974924325;
+    int seed = 99342094;
 
     // VORONOI STUFF
     const int macroWidth = 20;
     const int macroHeight = 12;
     const int minPoints = 2;
-    const int maxPoints = 3;
+    const int maxPoints = 2;
     VoronoiGrid grid = createVoronoiGrid(width, height, macroWidth, macroHeight);
     generateVoronoiCells(grid, seed, minPoints, maxPoints);
-
-    // PERLIN STUFF
-    std::array<glm::vec2, 32> gradientVectors = generateGradients();
-    std::array<int, 512> permutationTable = generatePermutationTable(seed);
 
     // Get a list of all bitmasks
     std::vector<VoronoiBitmask> bitmasks;
@@ -200,20 +195,18 @@ int main() {
         double currentTime = glfwGetTime();
 
         // Generate a new world every few seconds
-        /*if (currentTime - lastSeedTime >= seedInterval) {
+        if (currentTime - lastSeedTime >= seedInterval) {
             seed = randomSeed(seedGenerator);
             std::cout << "Current Seed: " << seed << "\n";
 
             auto start = std::chrono::high_resolution_clock::now();
-
-            worldVertices = generateWorldVertices(width, height, seed);
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
             std::cout << "Generation took " << diff << "\n\n";
 
             lastSeedTime = currentTime;
-        }*/
+        }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

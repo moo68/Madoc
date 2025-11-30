@@ -1,14 +1,21 @@
+#include <random>
+
 #include <madoc/biome_generator.h>
 #include <madoc/perlin_noise.h>
 
 
 std::vector<float> generateBiomeColor(float x, float y, int seed) {
     std::array<glm::vec2, 32> gradientVectors = generateGradients();
-    std::array<int, 512> permutationTable = generatePermutationTable(seed);
+    std::array<int, 512> elevationPermutationTable = generatePermutationTable(seed);
+
+    std::mt19937 generator(seed);
+    int precipSeed = generator();
+    std::array<int, 512> precipPermutationTable = generatePermutationTable(precipSeed);
 
     float worldHeight = 600;
     float temperature = generateTemperature(y, worldHeight, 1.0f);
-    float elevation = generateElevation(permutationTable, gradientVectors, x, y);
+    float elevation = generateElevation(elevationPermutationTable, gradientVectors, x, y);
+    float precipitation = generatePrecipitation(precipPermutationTable, gradientVectors, x, y);
 
     // Impassible mountain
     if (elevation >= 0.67) {
@@ -25,23 +32,29 @@ std::vector<float> generateBiomeColor(float x, float y, int seed) {
             return {0.921f, 0.921f, 0.921f};
         }
         // Tundra
-        if (temperature <= 0.25f) {
+        if (temperature <= 0.33f) {
             return {0.0f, 0.392f, 0.0f};
         }
         // Forest
-        if (temperature <= 0.75f) {
-            return {0.0f, 0.784f, 0.0f};
+        if (temperature <= 0.66f) {
+            return {0.0f, 0.588f, 0.0f};
         }
         // Savannah
-        if (temperature <= 0.90f) {
+        if (temperature <= 0.85f) {
             return {0.784f, 0.725f, 0.0f};
         }
-        // Desert
+        // Hot
         else {
-            return {1.0f, 0.784f, 0.0f};
+            // Rainforest
+            if (precipitation >= 0.55f) {
+                return {0.0f, 0.784f, 0.0f};
+            }
+            // Desert
+            else {
+                return {1.0f, 0.784f, 0.0f};
+            }
         }
     }
-
     // Shallow Sea
     if (elevation >= 0.45f) {
         return {0.392f, 0.588f, 0.784f};
@@ -66,6 +79,13 @@ float generateTemperature(float y, float worldHeight, float tempMult) {
 
 float generateElevation(std::array<int, 512>& permutationTable,
                         std::array<glm::vec2, 32>& gradientVectors, float x, float y) {
+    float perlinSample = samplePerlinOctaves(permutationTable, gradientVectors,
+                                             x, y, 4, 1.0f, 0.01f, 0.5f, 2.0f);
+    return (perlinSample + 1) / 2;
+}
+
+float generatePrecipitation(std::array<int, 512>& permutationTable,
+                            std::array<glm::vec2, 32>& gradientVectors, float x, float y) {
     float perlinSample = samplePerlinOctaves(permutationTable, gradientVectors,
                                              x, y, 4, 1.0f, 0.01f, 0.5f, 2.0f);
     return (perlinSample + 1) / 2;
