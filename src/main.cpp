@@ -289,6 +289,7 @@ void processInput(GLFWwindow *window)
 
 }
 
+/*
 void generateWorld(int seed, GLuint VBO, GLuint EBO) {
    // VORONOI STUFF
     int width = 1000;
@@ -346,4 +347,4 @@ void generateWorld(int seed, GLuint VBO, GLuint EBO) {
         indices.insert(indices.end(), currentIndices.begin(), currentIndices.end());
     }
     std::cout << "Vertex data complete\n";
-}
+}*/
