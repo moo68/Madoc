@@ -15,7 +15,7 @@ See /external for the different external libraries vendored in, such as GLAD and
 - Properly rendering a full grid of Voronoi cells [DONE]
 - Triangularizing Voronoi cells (ear clipping) [DONE]*
 - Implementing Perlin noise on top of the voronoi cells [DONE]
-- Simulating basic geography with Perlin noise [IN PROGRESS]
+- Simulating basic geography with noise functions [IN PROGRESS]
 - ...and more?
 
 *Ear-clipping is currently quite basic and can produce some artifacts, but is good enough for now
